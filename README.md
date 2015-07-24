@@ -37,64 +37,6 @@ This will generate the following output
 123abc456xyz
 ```
 
-##  API-reference
-
-### Global
-
-
-
-
-
-* * *
-
-##### exports(Handlebars, options, options.placeholder) 
-
-Returns a wrapped Handlebars instance that
-* Allows helpers to return promises
-* Creates `compiled` templates that always
-  return a promise for the resulting string.
-  The promise is fulfilled after all helper-promsises
-  are resolved.
-
-**Parameters**
-
-**Handlebars**: `Handlebars`, Returns a wrapped Handlebars instance that
-* Allows helpers to return promises
-* Creates `compiled` templates that always
-  return a promise for the resulting string.
-  The promise is fulfilled after all helper-promsises
-  are resolved.
-
-**options**: `object`, Returns a wrapped Handlebars instance that
-* Allows helpers to return promises
-* Creates `compiled` templates that always
-  return a promise for the resulting string.
-  The promise is fulfilled after all helper-promsises
-  are resolved.
-
-**options.placeholder**: `string`, Returns a wrapped Handlebars instance that
-* Allows helpers to return promises
-* Creates `compiled` templates that always
-  return a promise for the resulting string.
-  The promise is fulfilled after all helper-promsises
-  are resolved.
-
-**Returns**: `Handlebars`, a modified Handlebars object
-
-
-
-* * *
-
-
-
-
-
-
-
-
-
-
-
 
 ## License
 
