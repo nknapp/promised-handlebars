@@ -20,7 +20,12 @@
     "pretest": "npm list --depth=0 -g standard || npm -g install standard",
     "test": "mocha && standard",
     "preformat": "npm list --depth=0 -g standard || npm -g install standard",
-    "format": "standard --format"
+    "format": "standard --format",
+    "thought": "thought run -a",
+    "prethoughtcheck": "npm list --depth=0 -g thought || npm -g install thought",
+    "thoughtcheck": "thought check-engines",
+    "version": "npm run thought",
+    "preversion": "npm run thoughtcheck"
   },
   "dependencies": {},
   "standard": {
@@ -33,5 +38,9 @@
     "chai": "^3.2.0",
     "handlebars": "^3.0.3",
     "mocha": "^2.2.5"
+  },
+  "paths": {
+    "relative": "package.json",
+    "absolute": "/home/nknappmeier/privat/node-libraries/promised-handlebars/package.json"
   }
 }
