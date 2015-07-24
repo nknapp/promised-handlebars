@@ -1,0 +1,35 @@
+{
+  "name": "promised-handlebars",
+  "version": "0.0.0",
+  "description": "Wrapper for Handlebars that allows helpers returning promises",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nknapp/promised-handlebars.git"
+  },
+  "author": {
+    "name": "Nils Knappmeier",
+    "email": "npm@knappi.org",
+    "url": "https://github.com/nknapp"
+  },
+  "bugs": {
+    "url": "https://github.com/nknapp/promised-handlebars/issues"
+  },
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "pretest": "npm list --depth=0 -g standard || npm -g install standard",
+    "test": "jasmine && standard",
+    "preformat": "npm list --depth=0 -g standard || npm -g install standard",
+    "format": "standard --format"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "jasmine": "^2.3.1"
+  },
+  "standard": {
+    "ignore": [
+      "spec/fixtures/**"
+    ]
+  },
+  "keywords": []
+}
