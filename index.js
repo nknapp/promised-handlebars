@@ -52,16 +52,26 @@ module.exports = function promisedHandlebars (Handlebars,options) {
   engine.compile = function() {
     var fn = oldCompile.apply(this, arguments);
      // Wrap the compiled function
-    return function() {
-      promises = [];
-      var resultWithPlaceholders = fn.apply(engine,arguments);
-      // Save a local copy for concurrency reasons
-      var _promises = promises;
-      return Q.all(_promises).then(function(results) {
-        return resultWithPlaceholders.replace(regex, function() {
-          return results.shift();
+    return function () {
+      if (promises) {
+        // "promises" array already exists: We are executing a partial
+        // Do not return a promise or things will fail.
+        return fn.apply(engine, arguments)
+      }
+      try {
+        promises = [];
+        var resultWithPlaceholders = fn.apply(engine, arguments);
+        // Save a local copy for concurrency reasons
+        var _promises = promises;
+        return Q.all(_promises).then(function (results) {
+          return resultWithPlaceholders.replace(regex, function () {
+            return results.shift();
+          });
         });
-      });
+      } finally {
+        promises = null
+      }
+
     }
 
   }
