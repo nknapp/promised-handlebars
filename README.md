@@ -15,8 +15,8 @@ npm install promised-handlebars
 The following example demonstrates how to use this module:
 
 ```js
-var promisedHandlebars = require("../");
-var Q = require("q");
+var promisedHandlebars = require('promised-handlebars')
+var Q = require('q')
 var Handlebars = promisedHandlebars(require('handlebars'))
 
 // Register a helper that returns a promise
@@ -71,15 +71,15 @@ The result is a promise for the finalized template output.
   with partials are needed to verify the behaviour.
   If this does not work out, I have to go for uuids, but I'd rather omit that.
                                                        
-* I have not tested the module with block helpers yet.
-
 * The algorithm currently uses the char `\u0001` as placeholder in the 
   template. If the template or any partial or the input data contains this 
   character already, helper values will be inserted in the wrong place.
   This can be ommited by passing an other character in the `options` parameter,
   but it would be better to determine a character automatically based on the 
   actual input.
-  
+
+* See [open issues](https://github.com/nknapp/promised-handlebars/issues) for 
+  other problems.
 
 
 ## License
