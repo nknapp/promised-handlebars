@@ -9,7 +9,7 @@ before_script:
   - standard
 script:
   - npm install istanbul
-  - istanbul cover ./node_modules/.bin/jasmine --report lcovonly
+  - istanbul cover ./node_modules/.bin/mocha --report lcovonly
 after_script:
   - npm install coveralls
   - cat ./coverage/lcov.info | coveralls
