@@ -11,8 +11,8 @@ var Q = require('q')
 
 /**
  * Returns a new Handlebars instance that
- * * Allows helpers to return promises
- * * Creates `compiled` templates that always
+ * * allows helpers to return promises
+ * * creates `compiled` templates that always
  *   return a promise for the resulting string.
  *   The promise is fulfilled after all helper-promsises
  *   are resolved.
