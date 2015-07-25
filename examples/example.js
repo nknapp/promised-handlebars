@@ -1,5 +1,5 @@
-var promisedHandlebars = require("../");
-var Q = require("q");
+var promisedHandlebars = require('../')
+var Q = require('q')
 var Handlebars = promisedHandlebars(require('handlebars'))
 
 // Register a helper that returns a promise

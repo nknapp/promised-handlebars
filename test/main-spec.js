@@ -15,10 +15,10 @@
 var Q = require('q')
 
 // Chai Setup
-var chai = require("chai");
-var chaiAsPromised = require("chai-as-promised");
-chai.use(chaiAsPromised);
-var expect = chai.expect;
+var chai = require('chai')
+var chaiAsPromised = require('chai-as-promised')
+chai.use(chaiAsPromised)
+var expect = chai.expect
 
 // Handlebars-Setup
 var promisedHandlebars = require('../')
@@ -37,51 +37,48 @@ Handlebars.registerHelper({
   }
 })
 
-Handlebars.registerPartial('a',"{{helper '10' 'partialA'}}")
-Handlebars.registerPartial('b',"{{helper '10' 'partialB'}}")
+Handlebars.registerPartial('a', "{{helper '10' 'partialA'}}")
+Handlebars.registerPartial('b', "{{helper '10' 'partialB'}}")
 
 describe('promised-handlebars:', function () {
-  xit('should return a promise for the ouput with helpers resolved', function (done) {
+  it('should return a promise for the ouput with helpers resolved', function (done) {
     var template = Handlebars.compile(fixture('simple-helper.hbs'))
     return expect(template({a: 'abc', b: 'xyz'}))
       .to.eventually.equal('123 h(abc) 456 h(xyz)')
-      .notify(done);
+      .notify(done)
   })
 
-  xit('should work with block helpers that call `fn` while resolving a promise', function (done) {
+  it('should work with block helpers that call `fn` while resolving a promise', function (done) {
     var template = Handlebars.compile(fixture('block-helper.hbs'))
     return expect(template({a: 'abc', b: 'xyz'}))
       .to.eventually.equal('123 b(abc) 456')
-      .notify(done);
+      .notify(done)
   })
 
-  xit('should work with a helper being called from within a block helpers', function (done) {
+  it('should work with a helper being called from within a block helpers', function (done) {
     var template = Handlebars.compile(fixture('nested-helpers.hbs'))
     return expect(template({a: 'abc', b: 'xyz'}))
       .to.eventually.equal('123 b(h(abc)) 456')
-      .notify(done);
+      .notify(done)
   })
 
-  xit('should handle {{expr}} and {{{expr}}} like Handlebars does', function (done) {
+  it('should handle {{expr}} and {{{expr}}} like Handlebars does', function (done) {
     var template = Handlebars.compile(fixture('escaping.hbs'))
-    return expect(template({a: '<a>' , b: '<b>'}))
+    return expect(template({a: '<a>', b: '<b>'}))
       .to.eventually.equal('raw: <a> h(<a>) esc: &lt;a&gt; h(&lt;a&gt;)')
-      .notify(done);
+      .notify(done)
 
   })
 
   it('should work correctly when partials are called', function (done) {
     var template = Handlebars.compile(fixture('partials.hbs'))
-    return expect(template({a: 'aa' , b: 'bb'}))
+    return expect(template({a: 'aa', b: 'bb'}))
       .to.eventually.equal('h(partialA) 123 h(aa) h(partialB) 456 h(bb)')
-      .notify(done);
+      .notify(done)
   })
 })
-
 
 function fixture (file) {
   var fs = require('fs')
   return fs.readFileSync(require.resolve('./fixtures/' + file), {encoding: 'utf-8'}).trim()
 }
-
-;
