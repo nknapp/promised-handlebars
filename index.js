@@ -11,7 +11,7 @@ var Q = require('q')
 
 
 /**
- * Returns a wrapped Handlebars instance that
+ * Returns a new Handlebars instance that
  * * Allows helpers to return promises
  * * Creates `compiled` templates that always
  *   return a promise for the resulting string.

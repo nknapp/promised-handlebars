@@ -38,6 +38,50 @@ This will generate the following output
 ```
 
 
+## How it works
+
+Handlebars allows you to register helper functions and that can be called 
+from the template. The template itself is compiled into the function that 
+can be called to render a JSON.
+
+This module wraps all the helper functions and the compiled template function
+in order to do the following:
+
+* The helper return values are not directly insert into the template output.
+  Instead, they are stored in an array that is initialized on every execution
+  of the compiled template.
+
+* Instead of the helper-return value, a placeholder character is returned and
+  inserted into the template output.
+
+* After the execution of the compiled template, a combined promise of all
+  helper return values is created with `Q.all()` and returned when this 
+  promise (i.e. all helper-return-values) are resolved, all placeholder 
+  character in the template output is replaced by the actual resolved values.
+
+The result is a promise for the finalized template output.
+
+### Caveats  / TODOs
+
+* The whole algorithm is based on the assumption, that the Handlebars template
+  is calling and inserting helper return-values in a linear fashion. 
+  If helpers are not called in the same order in which the values are inserted
+  in the template, this module will shuffle values. However, this did not
+  happen in the example and in the first tests. More complicated tests 
+  with partials are needed to verify the behaviour.
+  If this does not work out, I have to go for uuids, but I'd rather omit that.
+                                                       
+* I have not tested the module with block helpers yet.
+
+* The algorithm currently uses the char `\u0001` as placeholder in the 
+  template. If the template or any partial or the input data contains this 
+  character already, helper values will be inserted in the wrong place.
+  This can be ommited by passing an other character in the `options` parameter,
+  but it would be better to determine a character automatically based on the 
+  actual input.
+  
+
+
 ## License
 
 `promised-handlebars` is published under the MIT-license. 
