@@ -3,12 +3,16 @@ var Q = require('q')
 var Handlebars = promisedHandlebars(require('handlebars'))
 
 // Register a helper that returns a promise
-Handlebars.registerHelper('p', function (value) {
+Handlebars.registerHelper('helper', function (value) {
   return Q.delay(100).then(function () {
     return value
   })
 })
 
+var template = Handlebars.compile('123{{helper a}}456{{helper b}}')
+
 // The whole compiled function returns a promise as well
-Handlebars.compile('123{{p a}}456{{p b}}')({ a: 'abc', b: 'xyz'})
-  .done(console.log)
+template({
+  a: 'abc',
+  b: 'xyz'
+}).done(console.log)
