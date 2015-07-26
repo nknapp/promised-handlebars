@@ -20,9 +20,10 @@ var promises = null
  *   The promise is fulfilled after all helper-promsises
  *   are resolved.
  *
- * @param {Handlebars} Handlebars
- * @param {object} options
- * @param {string=} options.placeholder
+ * @param {Handlebars} Handlebars the Handlebars engine to wrap
+ * @param {object} options optional parameters
+ * @param {string=} options.placeholder the placeholder to be used in the template-output before inserting
+ *   the promised results
  * @returns {Handlebars} a modified Handlebars object
  */
 
@@ -30,8 +31,9 @@ module.exports = function promisedHandlebars (Handlebars, options) {
   options = options || {}
   options.placeholder = options.placeholder || '\u0001'
 
-  // one line from from substack's quotemeta-package
-  var regex = new RegExp(String(options.placeholder).replace(/(\W)/g, '\\$1'), 'g')
+  // one line from substack's quotemeta-package
+  var placeHolderRegexEscaped = String(options.placeholder).replace(/(\W)/g, '\\$1')
+  var regex = new RegExp(placeHolderRegexEscaped + '(>|&gt;)', 'g')
 
   var engine = Handlebars.create()
 
@@ -53,7 +55,8 @@ module.exports = function promisedHandlebars (Handlebars, options) {
         var result = Q(fn.apply(this, arguments))
         // Remember promise and return placeholder instead
         promises.push(result)
-        return options.placeholder
+        // Insert additional ">" after placeholder to detect escaped expressions
+        return options.placeholder + '>'
       })
     } else {
       // `keyOrObject` is actual an object of helpers
@@ -71,7 +74,6 @@ module.exports = function promisedHandlebars (Handlebars, options) {
     return wrapAndResolve(fn)
   // Wrap the compiled function
   }
-
 
   /**
    * Wrap a function (template or block-helper callback)
@@ -100,8 +102,10 @@ module.exports = function promisedHandlebars (Handlebars, options) {
         var resultWithPlaceholders = fn.apply(undefined, arguments)
         return Q.all(promises).then(function (results) {
           // Promises are fulfilled. Insert real values into the result.
-          return String(resultWithPlaceholders).replace(regex, function () {
-            return results.shift()
+          return String(resultWithPlaceholders).replace(regex, function (match,gt) {
+            var result = results.shift();
+            // Check whether promise result must be escaped
+            return gt === ">" ? result : engine.escapeExpression(result);
           })
         })
       } finally {
