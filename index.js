@@ -72,6 +72,15 @@ module.exports = function promisedHandlebars (Handlebars, options) {
   // Wrap the compiled function
   }
 
+
+  /**
+   * Wrap a function (template or block-helper callback)
+   * such that
+   * 1) the `promises` variable is initialized with a new array
+   * 2) a promise is returned instead of a string
+   * 3) promise placeholder-values are replaced with the promise-results
+   *    in the returned promise
+   */
   function wrapAndResolve (fn) {
     return function () {
       if (promises) {
