@@ -2,7 +2,7 @@
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Upcoming
+## v0.2.1 - 2015-07-26
 ### Fix
 
 * Issue #2: Escaping of promise return value is now done properly 
