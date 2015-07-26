@@ -11,7 +11,7 @@ npm install promised-handlebars
 
 ## Usage
 
-`` creates a new a Handlebars-instance with wrapped
+`promised-handlebars` creates a new a Handlebars-instance with wrapped
 `compile`-method and added `registerPromiseHelper`-method to allow 
 helpers that return promises.
 
