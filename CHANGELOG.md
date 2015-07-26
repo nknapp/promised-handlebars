@@ -2,7 +2,7 @@
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Upcoming
+## v0.2.0 - 2015-07-26
 ### Change
 * `registerHelper` is not overwritten anymore. Instead, a new method `registerPromiseHelper`
   is added to Handlebars
