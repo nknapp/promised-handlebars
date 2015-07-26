@@ -101,8 +101,8 @@ Handlebars allows you to register helper functions and that can be called
 from the template. The template itself is compiled into the function that 
 can be called to render a JSON.
 
-This module wraps all the helper functions and the compiled template function
-in order to do the following:
+This module wraps the compiled template function and helpers register with 
+`registerPromiseHelper` in order to do the following:
 
 * The helper return values are not directly insert into the template output.
   Instead, they are stored in an array that is initialized on every execution
