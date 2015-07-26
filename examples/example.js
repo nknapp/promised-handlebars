@@ -3,7 +3,7 @@ var Q = require('q')
 var Handlebars = promisedHandlebars(require('handlebars'))
 
 // Register a helper that returns a promise
-Handlebars.registerHelper('helper', function (value) {
+Handlebars.registerPromiseHelper('helper', function (value) {
   return Q.delay(100).then(function () {
     return value
   })

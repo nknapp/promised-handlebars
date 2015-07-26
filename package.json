@@ -37,8 +37,12 @@
   "devDependencies": {
     "chai": "^3.2.0",
     "chai-as-promised": "^5.1.0",
+    "get-promise": "^1.4.0",
     "handlebars": "^3.0.3",
     "mocha": "^2.2.5"
+  },
+  "peerDependencies": {
+    "handlebars": "^3.0.3"
   },
   "paths": {
     "relative": "package.json",

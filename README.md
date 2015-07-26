@@ -9,10 +9,20 @@
 npm install promised-handlebars
 ```
 
- 
 ## Usage
 
-The following example demonstrates how to use this module:
+`` creates a new a Handlebars-instance with wrapped
+`compile`-method and added `registerPromiseHelper`-method to allow 
+helpers that return promises.
+
+As a side-effect (in order to allow asynchronous template execution)
+the compiled template-function itself always returns a promise instead
+of a string.
+
+### Simple helpers 
+
+Simple helpers registered with `registerPromiseHelper` can just return
+promises.
 
 ```js
 var promisedHandlebars = require('promised-handlebars')
@@ -20,7 +30,7 @@ var Q = require('q')
 var Handlebars = promisedHandlebars(require('handlebars'))
 
 // Register a helper that returns a promise
-Handlebars.registerHelper('helper', function (value) {
+Handlebars.registerPromiseHelper('helper', function (value) {
   return Q.delay(100).then(function () {
     return value
   })
@@ -40,6 +50,49 @@ This will generate the following output
 ```
 123abc456xyz
 ```
+
+### Block helpers
+
+If you use `registerPromiseHelper` to register a block-helper, the callback-functions that execute 
+the helper-contents (`options.fn`) and the else-block (`options.inverse`) always return a promise.
+This behaviour is not compatible with the default Handlebars behaviour and it means that 
+helpers originally written for `registerHelper` may not work with `registerPromiseHelper`.
+Here is a simple example for using block helpers:
+
+```js
+var promisedHandlebars = require('promised-handlebars')
+var Handlebars = promisedHandlebars(require('handlebars'))
+var httpGet = require('get-promise')
+
+// A block helper (retrieve weather for a city from openweathermap.org)
+// Execute the helper-block with the weather result
+Handlebars.registerPromiseHelper('weather', function (value, options) {
+  var url = 'http://api.openweathermap.org/data/2.5/weather?q=' + value + '&units=metric'
+  return httpGet(url)
+    .get('data')
+    .then(JSON.parse)
+    .then(function (weather) {
+      // `options.fn` returns a promise. Wrapping brackets must be added after resolving
+      return options.fn(weather)
+    })
+})
+
+var template = Handlebars.compile('{{city}}: {{#weather city}}{{{main.temp}}}°C{{/weather}}')
+
+// The whole compiled function returns a promise as well
+template({
+  city: 'Darmstadt'
+}).done(console.log)
+```
+
+This will generate the following output
+
+```
+Darmstadt: 17.68°C
+```
+
+
+
 
 
 ## How it works
@@ -91,6 +144,10 @@ The result is a promise for the finalized template output.
 `promised-handlebars` is published under the MIT-license. 
 See [LICENSE.md](LICENSE.md) for details.
 
+## Release-Notes
+ 
+For release notes, see the [changelog](CHANGELOG.md)
+ 
 ## Contributing Guidelines
 
 <!-- Taken from @tunnckoCore: https://github.com/tunnckoCore/coreflow-templates/blob/master/template/CONTRIBUTING.md -->

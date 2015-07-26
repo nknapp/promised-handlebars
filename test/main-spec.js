@@ -24,16 +24,29 @@ var expect = chai.expect
 var promisedHandlebars = require('../')
 var Handlebars = promisedHandlebars(require('handlebars'))
 
-Handlebars.registerHelper({
+Handlebars.registerPromiseHelper({
   'helper': function (delay, value) {
     return Q.delay(delay).then(function () {
       return 'h(' + value + ')'
     })
   },
   'block': function (delay, value, options) {
-    return Q.delay(delay).then(function () {
-      return 'b(' + options.fn(value) + ')'
-    })
+    return Q.delay(delay)
+      .then(function () {
+        return options.fn(value)
+      })
+      .then(function (result) {
+        return 'b(' + result + ')'
+      })
+  },
+  'block-inverse': function (delay, value, options) {
+    return Q.delay(delay)
+      .then(function () {
+        return options.inverse(value)
+      })
+      .then(function (result) {
+        return 'bi(' + result + ')'
+      })
   }
 })
 
@@ -51,14 +64,14 @@ describe('promised-handlebars:', function () {
   it('should work with block helpers that call `fn` while resolving a promise', function (done) {
     var template = Handlebars.compile(fixture('block-helper.hbs'))
     return expect(template({a: 'abc', b: 'xyz'}))
-      .to.eventually.equal('123 b(abc) 456')
+      .to.eventually.equal('123 b(abc) 456\n123 bi(cba) 456')
       .notify(done)
   })
 
   it('should work with a helper being called from within a block helpers', function (done) {
     var template = Handlebars.compile(fixture('nested-helpers.hbs'))
     return expect(template({a: 'abc', b: 'xyz'}))
-      .to.eventually.equal('123 b(h(abc)) 456')
+      .to.eventually.equal('block b( h(abc) ) 45\ninverse bi( h(cba) ) 456')
       .notify(done)
   })
 

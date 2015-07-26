@@ -2,6 +2,16 @@
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Upcoming
+### Change
+* `registerHelper` is not overwritten anymore. Instead, a new method `registerPromiseHelper`
+  is added to Handlebars
+* for block-helpers registered with `registerPromiseHelper`, the `options.fn`- and `options.inverse`-functions
+  always return a promisefor the body-contents (not a string).
+ 
+### Fix
+* Issue #1: Promise-Helpers can be called from within Promise block-helpers.
+
 ## v0.1.2 - 2015-07-26
 ### Fix
 * More test cases

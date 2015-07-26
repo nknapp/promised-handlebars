@@ -1,1 +1,2 @@
-123 {{#block '10' a}}{{helper '20' .}}{{/block}} 456
+block {{#block '10' a}} {{helper '20' .}} {{else}} {{helper '20' 'cba'}} {{/block}} 45
+inverse {{#block-inverse '10' a}} {{helper '20' .}} {{else}} {{helper '20' 'cba'}} {{/block-inverse}} 456

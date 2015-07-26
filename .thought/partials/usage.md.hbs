@@ -1,0 +1,37 @@
+## Usage
+
+`{{{name}}}` creates a new a Handlebars-instance with wrapped
+`compile`-method and added `registerPromiseHelper`-method to allow 
+helpers that return promises.
+
+As a side-effect (in order to allow asynchronous template execution)
+the compiled template-function itself always returns a promise instead
+of a string.
+
+### Simple helpers 
+
+Simple helpers registered with `registerPromiseHelper` can just return
+promises.
+
+{{{example 'examples/example.js'}}}
+
+This will generate the following output
+
+{{{exec 'node example.js' cwd='examples/'}}}
+
+### Block helpers
+
+If you use `registerPromiseHelper` to register a block-helper, the callback-functions that execute 
+the helper-contents (`options.fn`) and the else-block (`options.inverse`) always return a promise.
+This behaviour is not compatible with the default Handlebars behaviour and it means that 
+helpers originally written for `registerHelper` may not work with `registerPromiseHelper`.
+Here is a simple example for using block helpers:
+
+{{{example 'examples/example-block-helper.js'}}}
+
+This will generate the following output
+
+{{{exec 'node example-block-helper.js' cwd='examples/'}}}
+
+
+
