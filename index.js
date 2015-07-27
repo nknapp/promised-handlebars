@@ -87,6 +87,7 @@ module.exports = function promisedHandlebars (Handlebars, options) {
     return function () {
       if (promises) {
         // "promises" array already exists: We are executing a partial
+        // or a synchronous block helper.
         // That means we are called from somewhere within Handlebars.
         // Handlebars does not like promises, so we act as normal as possible.
         return fn.apply(undefined, arguments)
