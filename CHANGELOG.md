@@ -2,7 +2,7 @@
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Upcoming
+## v0.3.0 - 2015-07-28
 ### Change
 
 * Revert the use of `registerPromiseHelper` and overwrite `registerHelper` again. 
