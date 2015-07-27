@@ -89,7 +89,7 @@ template({
 This will generate the following output
 
 ```
-Darmstadt: 18.48°C
+Darmstadt: 17.7°C
 ```
 
 
@@ -169,7 +169,16 @@ There are things to think about that are covered by this module:
 * See [open issues](https://github.com/nknapp/promised-handlebars/issues) for 
   other problems.
 
+### Other solutions for async-handlebars
 
+* The problem of async-helpers was discussed in 
+  [this issue in the Handlebars project on github](https://github.com/wycats/handlebars.js/issues/141).
+  Some solutions are discussed there. The implementation of this module is similar to one of them.  
+
+* There is a [handlebars-async](https://www.npmjs.com/package/handlebars-async)-package on npm, which
+  works with callbacks instead of promises. It's version is currently 0.0.3 and the last release is 
+  two years ago (as of July 2015), which is why I did not take a closer look. But it seems to use 
+  uuids to mark insertion-points for promise-results.
 
 ## License
 
@@ -182,7 +191,7 @@ For release notes, see the [changelog](CHANGELOG.md)
  
 ## Contributing Guidelines
 
-<!-- Taken from @tunnckoCore: https://github.com/tunnckoCore/coreflow-templates/blob/master/template/CONTRIBUTING.md -->
+*This text is taken mainly from @tunnckoCore: https://github.com/tunnckoCore/coreflow-templates/blob/master/template/CONTRIBUTING.md*
 
 Contributions are always welcome!
 
@@ -191,6 +200,7 @@ Contributions are always welcome!
 Please search issues and pull requests before adding something new to avoid duplicating
 efforts and conversations.
 
+People submitting relevant contributions to the module will be granted commit access to the repository.
 
 ### Installing
 
