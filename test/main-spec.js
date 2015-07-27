@@ -24,7 +24,7 @@ var expect = chai.expect
 var promisedHandlebars = require('../')
 var Handlebars = promisedHandlebars(require('handlebars'))
 
-Handlebars.registerPromiseHelper({
+Handlebars.registerHelper({
   'helper': function (delay, value) {
     return Q.delay(delay).then(function () {
       return 'h(' + value + ')'
@@ -47,6 +47,12 @@ Handlebars.registerPromiseHelper({
       .then(function (result) {
         return 'bi(' + result + ')'
       })
+  },
+  'insert-twice': function (options) {
+    return options.fn() + "," + options.fn();
+  },
+  'times-three': function (number) {
+    return 3 * number;
   }
 })
 
@@ -89,9 +95,23 @@ describe('promised-handlebars:', function () {
       .to.eventually.equal('h(partialA) 123 h(aa) h(partialB) 456 h(bb)')
       .notify(done)
   })
+
+  it('the options.fn()-method should not return a promise for synchronous block helpers', function (done) {
+    var template = Handlebars.compile(fixture('synchronous-block-helper.hbs'))
+    return expect(template({}))
+      .to.eventually.equal('abc,abc')
+      .notify(done)
+  })
+
+  it('simple helpers should also be able to return real values', function (done) {
+    var template = Handlebars.compile(fixture('synchronous-simple-helper.hbs'))
+    return expect(template({}))
+      .to.eventually.equal('27')
+      .notify(done)
+  })
 })
 
-function fixture (file) {
+function fixture(file) {
   var fs = require('fs')
   return fs.readFileSync(require.resolve('./fixtures/' + file), {encoding: 'utf-8'}).trim()
 }

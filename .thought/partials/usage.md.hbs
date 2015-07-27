@@ -1,7 +1,7 @@
 ## Usage
 
 `{{{package.name}}}` creates a new a Handlebars-instance with wrapped
-`compile`-method and added `registerPromiseHelper`-method to allow 
+`compile`-method and `registerHelper`-method to allow 
 helpers that return promises.
 
 As a side-effect (in order to allow asynchronous template execution)
@@ -10,8 +10,7 @@ of a string.
 
 ### Simple helpers 
 
-Simple helpers registered with `registerPromiseHelper` can just return
-promises.
+Simple helpers can just return promises.
 
 {{{example 'examples/example.js'}}}
 
@@ -21,11 +20,13 @@ This will generate the following output
 
 ### Block helpers
 
-If you use `registerPromiseHelper` to register a block-helper, the callback-functions that execute 
-the helper-contents (`options.fn`) and the else-block (`options.inverse`) always return a promise.
-This behaviour is not compatible with the default Handlebars behaviour and it means that 
-helpers originally written for `registerHelper` may not work with `registerPromiseHelper`.
-Here is a simple example for using block helpers:
+If a block-helper, calls the helper-contents (`options.fn`) and the else-block 
+(`options.inverse`) asynchronously, i.e. from within a promise chain those functions 
+may return a promise. 
+
+When those methods is called synchronously they return the value as they do in default Handlebars.  
+This means that helper-libraries written for Handlebars will still work, but you can also write
+block-helpers that do some asynchronous work before evaluating the block contents, such as:
 
 {{{example 'examples/example-block-helper.js'}}}
 

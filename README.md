@@ -12,7 +12,7 @@ npm install promised-handlebars
 ## Usage
 
 `promised-handlebars` creates a new a Handlebars-instance with wrapped
-`compile`-method and added `registerPromiseHelper`-method to allow 
+`compile`-method and `registerHelper`-method to allow 
 helpers that return promises.
 
 As a side-effect (in order to allow asynchronous template execution)
@@ -21,8 +21,7 @@ of a string.
 
 ### Simple helpers 
 
-Simple helpers registered with `registerPromiseHelper` can just return
-promises.
+Simple helpers can just return promises.
 
 ```js
 var promisedHandlebars = require('promised-handlebars')
@@ -30,7 +29,7 @@ var Q = require('q')
 var Handlebars = promisedHandlebars(require('handlebars'))
 
 // Register a helper that returns a promise
-Handlebars.registerPromiseHelper('helper', function (value) {
+Handlebars.registerHelper('helper', function (value) {
   return Q.delay(100).then(function () {
     return value
   })
@@ -53,11 +52,13 @@ This will generate the following output
 
 ### Block helpers
 
-If you use `registerPromiseHelper` to register a block-helper, the callback-functions that execute 
-the helper-contents (`options.fn`) and the else-block (`options.inverse`) always return a promise.
-This behaviour is not compatible with the default Handlebars behaviour and it means that 
-helpers originally written for `registerHelper` may not work with `registerPromiseHelper`.
-Here is a simple example for using block helpers:
+If a block-helper, calls the helper-contents (`options.fn`) and the else-block 
+(`options.inverse`) asynchronously, i.e. from within a promise chain those functions 
+may return a promise. 
+
+When those methods is called synchronously they return the value as they do in default Handlebars.  
+This means that helper-libraries written for Handlebars will still work, but you can also write
+block-helpers that do some asynchronous work before evaluating the block contents, such as:
 
 ```js
 var promisedHandlebars = require('promised-handlebars')
@@ -66,7 +67,7 @@ var httpGet = require('get-promise')
 
 // A block helper (retrieve weather for a city from openweathermap.org)
 // Execute the helper-block with the weather result
-Handlebars.registerPromiseHelper('weather', function (value, options) {
+Handlebars.registerHelper('weather', function (value, options) {
   var url = 'http://api.openweathermap.org/data/2.5/weather?q=' + value + '&units=metric'
   return httpGet(url)
     .get('data')
@@ -88,7 +89,7 @@ template({
 This will generate the following output
 
 ```
-Darmstadt: 15.79°C
+Darmstadt: 18.48°C
 ```
 
 
@@ -102,7 +103,7 @@ from the template. The template itself is compiled into the function that
 can be called to render a JSON.
 
 This module wraps the compiled template function and helpers register with 
-`registerPromiseHelper` in order to do the following:
+`registerHelper` in order to do the following:
 
 * The helper return values are not directly insert into the template output.
   Instead, they are stored in an array that is initialized on every execution
@@ -118,6 +119,35 @@ This module wraps the compiled template function and helpers register with
 
 The result is a promise for the finalized template output.
 
+### Edge-cases
+
+There are things to think about that are covered by this module:
+
+* The promise-array only exists during one execution of the javascript event-loop.
+  It will be reset to `null` once the template-execution is done and the `Q.all()` function
+  is called. Otherwise there would be serious concurrency problems when the template
+  is executed several times at the same time.
+
+* Registered partials in are compiled by Handlebars with the same `compile` function
+  as the template itself. However, they may not return a promise, because the caller-code
+  is not expecting that.
+  
+  Since the `partial`-function is called from somewhere within the `template`-function, the
+  promise-array already exists. Thus, the solution is, to call the `partial`-function directly
+  if the promise-array already exists. This will then return a string instead of a promise.
+
+* A block-helper may call `options.fn` and `option.inverse` from the `.then` function
+  of a promise. The promise-array is already reset to `null` when those functions are executed,
+  which means that they cannot insert any more promises. We solve this problem by wrapping
+  those functions with the same mechanism as the `template`- and `partial`-functions:
+  If the function is called in the same event-loop-cycle as the `template`-function, no
+  wrapper is applied and the return value is passed on as-is.
+
+  If the functions are called asynchronously from within a promise-`.then` function, the wrapper
+  will be applied and a promise will be returned instead of the actual return value.
+  The side-effect is that synchronous helper-libraries can still be used, while asynchronous
+  block helpers are possible, but must handle the promise return-value correctly.
+
 ### Caveats  / TODOs
 
 * The whole algorithm is based on the assumption, that the Handlebars template
@@ -126,8 +156,9 @@ The result is a promise for the finalized template output.
   in the template, this module will shuffle values. However, this did not
   happen in the example and in the first tests. More complicated tests 
   with partials are needed to verify the behaviour.
+
   If this does not work out, I have to go for uuids, but I'd rather omit that.
-                                                       
+
 * The algorithm currently uses the char `\u0001` as placeholder in the 
   template. If the template or any partial or the input data contains this 
   character already, helper values will be inserted in the wrong place.
@@ -137,6 +168,7 @@ The result is a promise for the finalized template output.
 
 * See [open issues](https://github.com/nknapp/promised-handlebars/issues) for 
   other problems.
+
 
 
 ## License

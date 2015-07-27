@@ -5,7 +5,7 @@ from the template. The template itself is compiled into the function that
 can be called to render a JSON.
 
 This module wraps the compiled template function and helpers register with 
-`registerPromiseHelper` in order to do the following:
+`registerHelper` in order to do the following:
 
 * The helper return values are not directly insert into the template output.
   Instead, they are stored in an array that is initialized on every execution
@@ -21,6 +21,35 @@ This module wraps the compiled template function and helpers register with
 
 The result is a promise for the finalized template output.
 
+### Edge-cases
+
+There are things to think about that are covered by this module:
+
+* The promise-array only exists during one execution of the javascript event-loop.
+  It will be reset to `null` once the template-execution is done and the `Q.all()` function
+  is called. Otherwise there would be serious concurrency problems when the template
+  is executed several times at the same time.
+
+* Registered partials in are compiled by Handlebars with the same `compile` function
+  as the template itself. However, they may not return a promise, because the caller-code
+  is not expecting that.
+  
+  Since the `partial`-function is called from somewhere within the `template`-function, the
+  promise-array already exists. Thus, the solution is, to call the `partial`-function directly
+  if the promise-array already exists. This will then return a string instead of a promise.
+
+* A block-helper may call `options.fn` and `option.inverse` from the `.then` function
+  of a promise. The promise-array is already reset to `null` when those functions are executed,
+  which means that they cannot insert any more promises. We solve this problem by wrapping
+  those functions with the same mechanism as the `template`- and `partial`-functions:
+  If the function is called in the same event-loop-cycle as the `template`-function, no
+  wrapper is applied and the return value is passed on as-is.
+
+  If the functions are called asynchronously from within a promise-`.then` function, the wrapper
+  will be applied and a promise will be returned instead of the actual return value.
+  The side-effect is that synchronous helper-libraries can still be used, while asynchronous
+  block helpers are possible, but must handle the promise return-value correctly.
+
 ### Caveats  / TODOs
 
 * The whole algorithm is based on the assumption, that the Handlebars template
@@ -29,8 +58,9 @@ The result is a promise for the finalized template output.
   in the template, this module will shuffle values. However, this did not
   happen in the example and in the first tests. More complicated tests 
   with partials are needed to verify the behaviour.
+
   If this does not work out, I have to go for uuids, but I'd rather omit that.
-                                                       
+
 * The algorithm currently uses the char `\u0001` as placeholder in the 
   template. If the template or any partial or the input data contains this 
   character already, helper values will be inserted in the wrong place.
@@ -40,4 +70,5 @@ The result is a promise for the finalized template output.
 
 * See [open issues](https://github.com/nknapp/promised-handlebars/issues) for 
   other problems.
+
 

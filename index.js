@@ -39,7 +39,7 @@ module.exports = function promisedHandlebars (Handlebars, options) {
 
   // Wrap `registerHelper` with a custom function
   var oldRegisterHelper = engine.registerHelper
-  engine.registerPromiseHelper = function (keyOrObject, fn) {
+  engine.registerHelper = function (keyOrObject, fn) {
     if (typeof keyOrObject === 'string') {
       // Register a custom helper-function instead of actual helper
       oldRegisterHelper.call(this, keyOrObject, function () {
@@ -63,7 +63,7 @@ module.exports = function promisedHandlebars (Handlebars, options) {
       // Call `registerHelper` again for each object
       // This simulates the default Handlebars-behaviour
       Object.keys(keyOrObject).forEach(function (key) {
-        engine.registerPromiseHelper(key, keyOrObject[key])
+        engine.registerHelper(key, keyOrObject[key])
       })
     }
   }
