@@ -27,7 +27,7 @@ var promises = null
  * @returns {Handlebars} a modified Handlebars object
  */
 
-module.exports = function promisedHandlebars(Handlebars, options) {
+module.exports = function promisedHandlebars (Handlebars, options) {
   options = options || {}
   options.placeholder = options.placeholder || '\u0001'
 
@@ -52,22 +52,21 @@ module.exports = function promisedHandlebars(Handlebars, options) {
           helperOpts.inverse = wrapAndResolve(helperOpts.inverse)
         }
 
-
         // If the result is not promise, return it
-        var rawResult = fn.apply(this, arguments);
+        var rawResult = fn.apply(this, arguments)
         if (!Q.isPromiseAlike(rawResult)) {
-          return rawResult;
+          return rawResult
         }
 
         // Check if the promise is already resolved
         var immediateResult
         var immediateError
-          var result = Q(rawResult)
+        var result = Q(rawResult)
           .then(function (result) {
             // Fetch result if it is available in the same event-loop cycle
             // Store an object to prevent the result being falsy
             immediateResult = {result: result}
-            return result;
+            return result
           })
           .catch(function (error) {
             // Fetch error if it is available in the same event-loop cycle
@@ -100,7 +99,7 @@ module.exports = function promisedHandlebars(Handlebars, options) {
   engine.compile = function () {
     var fn = oldCompile.apply(this, arguments)
     return wrapAndResolve(fn)
-    // Wrap the compiled function
+  // Wrap the compiled function
   }
 
   /**
@@ -111,7 +110,7 @@ module.exports = function promisedHandlebars(Handlebars, options) {
    * 3) promise placeholder-values are replaced with the promise-results
    *    in the returned promise
    */
-  function wrapAndResolve(fn) {
+  function wrapAndResolve (fn) {
     return function () {
       if (promises) {
         // "promises" array already exists: We are executing a partial
