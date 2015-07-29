@@ -27,7 +27,9 @@
     "version": "npm run thought",
     "preversion": "npm run thoughtcheck"
   },
-  "dependencies": {},
+  "dependencies": {
+    "q": "^1.4.1"
+  },
   "standard": {
     "ignore": [
       "spec/fixtures/**"
