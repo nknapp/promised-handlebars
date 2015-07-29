@@ -39,7 +39,8 @@
     "chai-as-promised": "^5.1.0",
     "get-promise": "^1.4.0",
     "handlebars": "^3.0.3",
-    "mocha": "^2.2.5"
+    "mocha": "^2.2.5",
+    "q-io": "^1.13.1"
   },
   "peerDependencies": {
     "handlebars": "^3.0.3"

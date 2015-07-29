@@ -53,6 +53,9 @@ Handlebars.registerHelper({
   },
   'times-three': function (number) {
     return 3 * number;
+  },
+  'exists': function(file) {
+    return require("q-io/fs").exists(file)
   }
 })
 
@@ -107,6 +110,19 @@ describe('promised-handlebars:', function () {
     var template = Handlebars.compile(fixture('synchronous-simple-helper.hbs'))
     return expect(template({}))
       .to.eventually.equal('27')
+      .notify(done)
+  })
+
+  it('helpers passed in as parameters like {{#helper (otherhelper 123)}} should be resolved within the helper call', function (done) {
+    var template = Handlebars.compile(fixture('helper-as-parameter.hbs'))
+    return expect(template({}))
+      .to.eventually.equal('index.js exists\nondex.js does not exist')
+      .notify(done)
+  })
+  it('async helpers nested in synchronous block-helpers should work', function (done) {
+    var template = Handlebars.compile(fixture('synchronous-block-helper-nests-async.hbs'))
+    return expect(template({a: 'aa'}))
+      .to.eventually.equal('h(aa),h(aa)')
       .notify(done)
   })
 })
