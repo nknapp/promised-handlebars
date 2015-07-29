@@ -2,6 +2,12 @@
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Upcoming
+### Fix
+
+* Allow async-helpers inside synchronous block-helpers
+* Added missing dependency on `q`
+
 ## v0.3.1 - 2015-07-28
 
 * Documentation update
