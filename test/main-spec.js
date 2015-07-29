@@ -49,13 +49,13 @@ Handlebars.registerHelper({
       })
   },
   'insert-twice': function (options) {
-    return options.fn() + "," + options.fn();
+    return options.fn() + ',' + options.fn()
   },
   'times-three': function (number) {
-    return 3 * number;
+    return 3 * number
   },
-  'exists': function(file) {
-    return require("q-io/fs").exists(file)
+  'exists': function (file) {
+    return require('q-io/fs').exists(file)
   }
 })
 
@@ -127,7 +127,7 @@ describe('promised-handlebars:', function () {
   })
 })
 
-function fixture(file) {
+function fixture (file) {
   var fs = require('fs')
   return fs.readFileSync(require.resolve('./fixtures/' + file), {encoding: 'utf-8'}).trim()
 }

@@ -103,10 +103,10 @@ module.exports = function promisedHandlebars (Handlebars, options) {
         var resultWithPlaceholders = fn.apply(undefined, arguments)
         return Q.all(promises).then(function (results) {
           // Promises are fulfilled. Insert real values into the result.
-          return String(resultWithPlaceholders).replace(regex, function (match,gt) {
-            var result = results.shift();
+          return String(resultWithPlaceholders).replace(regex, function (match, gt) {
+            var result = results.shift()
             // Check whether promise result must be escaped
-            return gt === ">" ? result : engine.escapeExpression(result);
+            return gt === '>' ? result : engine.escapeExpression(result)
           })
         })
       } finally {
