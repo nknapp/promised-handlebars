@@ -2,7 +2,7 @@
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Upcoming
+## v0.3.2 - 2015-07-30
 ### Fix
 
 * Allow async-helpers inside synchronous block-helpers
