@@ -89,7 +89,7 @@ template({
 This will generate the following output
 
 ```
-Darmstadt: 15.67°C
+Darmstadt: 13.01°C
 ```
 
 
