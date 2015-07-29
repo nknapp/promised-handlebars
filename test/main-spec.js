@@ -49,7 +49,7 @@ Handlebars.registerHelper({
       })
   },
   'insert-twice': function (options) {
-    return options.fn() + ',' + options.fn()
+    return options.fn(this) + ',' + options.fn(this)
   },
   'times-three': function (number) {
     return 3 * number

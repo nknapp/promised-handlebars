@@ -27,13 +27,13 @@ var promises = null
  * @returns {Handlebars} a modified Handlebars object
  */
 
-module.exports = function promisedHandlebars (Handlebars, options) {
+module.exports = function promisedHandlebars(Handlebars, options) {
   options = options || {}
   options.placeholder = options.placeholder || '\u0001'
 
   // one line from substack's quotemeta-package
   var placeHolderRegexEscaped = String(options.placeholder).replace(/(\W)/g, '\\$1')
-  var regex = new RegExp(placeHolderRegexEscaped + '(>|&gt;)', 'g')
+  var regex = new RegExp(placeHolderRegexEscaped + '(\\d+)(>|&gt;)', 'g')
 
   var engine = Handlebars.create()
 
@@ -52,11 +52,39 @@ module.exports = function promisedHandlebars (Handlebars, options) {
           helperOpts.inverse = wrapAndResolve(helperOpts.inverse)
         }
 
-        var result = Q(fn.apply(this, arguments))
-        // Remember promise and return placeholder instead
+
+        // If the result is not promise, return it
+        var rawResult = fn.apply(this, arguments);
+        if (!Q.isPromiseAlike(rawResult)) {
+          return rawResult;
+        }
+
+        // Check if the promise is already resolved
+        var immediateResult
+        var immediateError
+          var result = Q(rawResult)
+          .then(function (result) {
+            // Fetch result if it is available in the same event-loop cycle
+            // Store an object to prevent the result being falsy
+            immediateResult = {result: result}
+            return result;
+          })
+          .catch(function (error) {
+            // Fetch error if it is available in the same event-loop cycle
+            // Store an object to prevent the result being falsy
+            immediateError = {error: error}
+          })
+
+        if (immediateResult) {
+          return immediateResult.result
+        }
+        if (immediateError) {
+          return immediateError.error
+        }
+
         promises.push(result)
-        // Insert additional ">" after placeholder to detect escaped expressions
-        return options.placeholder + '>'
+        return options.placeholder + (promises.length - 1) + '>'
+
       })
     } else {
       // `keyOrObject` is actual an object of helpers
@@ -72,7 +100,7 @@ module.exports = function promisedHandlebars (Handlebars, options) {
   engine.compile = function () {
     var fn = oldCompile.apply(this, arguments)
     return wrapAndResolve(fn)
-  // Wrap the compiled function
+    // Wrap the compiled function
   }
 
   /**
@@ -83,7 +111,7 @@ module.exports = function promisedHandlebars (Handlebars, options) {
    * 3) promise placeholder-values are replaced with the promise-results
    *    in the returned promise
    */
-  function wrapAndResolve (fn) {
+  function wrapAndResolve(fn) {
     return function () {
       if (promises) {
         // "promises" array already exists: We are executing a partial
@@ -103,10 +131,9 @@ module.exports = function promisedHandlebars (Handlebars, options) {
         var resultWithPlaceholders = fn.apply(undefined, arguments)
         return Q.all(promises).then(function (results) {
           // Promises are fulfilled. Insert real values into the result.
-          return String(resultWithPlaceholders).replace(regex, function (match, gt) {
-            var result = results.shift()
+          return String(resultWithPlaceholders).replace(regex, function (match, index, gt) {
             // Check whether promise result must be escaped
-            return gt === '>' ? result : engine.escapeExpression(result)
+            return gt === '>' ? results[index] : engine.escapeExpression(results[index])
           })
         })
       } finally {
