@@ -43,7 +43,7 @@ module.exports = function promisedHandlebars (Handlebars, options) {
     if (typeof keyOrObject === 'string') {
       // Register a custom helper-function instead of actual helper
       oldRegisterHelper.call(this, keyOrObject, function () {
-        // Wrap "optons.fn" and "options.inverse" to apply the same
+        // Wrap "optons.fn" and "options.inverse" to apply the same logic as for the template itself
         var helperOpts = arguments[arguments.length - 1]
         if (helperOpts.fn) {
           helperOpts.fn = wrapAndResolve(helperOpts.fn)
