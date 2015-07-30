@@ -40,49 +40,31 @@ module.exports = function promisedHandlebars (Handlebars, options) {
   // Wrap `registerHelper` with a custom function
   var oldRegisterHelper = engine.registerHelper
   engine.registerHelper = function (keyOrObject, fn) {
+    var _this = this;
     if (typeof keyOrObject === 'string') {
       // Register a custom helper-function instead of actual helper
       oldRegisterHelper.call(this, keyOrObject, function () {
         // Wrap "optons.fn" and "options.inverse" to apply the same logic as for the template itself
         var helperOpts = arguments[arguments.length - 1]
         if (helperOpts.fn) {
-          helperOpts.fn = wrapAndResolve(helperOpts.fn)
+          var oldFn = helperOpts.fn;
+          helperOpts.fn =  function() {
+            var handleResult2 = handleResult(wrapAndResolve(oldFn).apply(_this,arguments));
+            console.log("fn",handleResult2);
+            return handleResult2;
+          }
         }
         if (helperOpts.inverse) {
-          helperOpts.inverse = wrapAndResolve(helperOpts.inverse)
+          var oldInverse = helperOpts.inverse;
+          helperOpts.inverse =  function() {
+            return handleResult(oldInverse.apply(_this, arguments));
+          }
         }
 
         // If the result is not promise, return it
         var rawResult = fn.apply(this, arguments)
-        if (!Q.isPromiseAlike(rawResult)) {
-          return rawResult
-        }
-
-        // Check if the promise is already resolved
-        var immediateResult
-        var immediateError
-        var result = Q(rawResult)
-          .then(function (result) {
-            // Fetch result if it is available in the same event-loop cycle
-            // Store an object to prevent the result being falsy
-            immediateResult = {result: result}
-            return result
-          })
-          .catch(function (error) {
-            // Fetch error if it is available in the same event-loop cycle
-            // Store an object to prevent the result being falsy
-            immediateError = {error: error}
-          })
-
-        if (immediateResult) {
-          return immediateResult.result
-        }
-        if (immediateError) {
-          return immediateError.error
-        }
-
-        promises.push(result)
-        return options.placeholder + (promises.length - 1) + '>'
+        console.log("raw",rawResult)
+        return handleResult(rawResult);
 
       })
     } else {
@@ -144,7 +126,46 @@ module.exports = function promisedHandlebars (Handlebars, options) {
       }
 
     }
+  }
 
+  /**
+   * Handle the return value of a helper.
+   * Pass through concrete values and values of already resolver promises.
+   * Put pending promises into the `promises`-array and return a placeholder instead.
+   *
+   * @param rawResult
+   * @returns {*}
+   */
+  function handleResult(rawResult) {
+    if (!Q.isPromiseAlike(rawResult)) {
+      return rawResult
+    }
+
+    // Check if the promise is already resolved
+    var immediateResult = null
+    var immediateError = null
+    var result = Q(rawResult)
+      .then(function (result) {
+        // Fetch result if it is available in the same event-loop cycle
+        // Store an object to prevent the result being falsy
+        immediateResult = {result: result}
+        return result
+      })
+      .catch(function (error) {
+        // Fetch error if it is available in the same event-loop cycle
+        // Store an object to prevent the result being falsy
+        immediateError = {error: error}
+      })
+
+    if (immediateResult) {
+      return immediateResult.result
+    }
+    if (immediateError) {
+      throw immediateError.error;
+    }
+
+    promises.push(result)
+    return options.placeholder + (promises.length - 1) + '>'
   }
 
   return engine
