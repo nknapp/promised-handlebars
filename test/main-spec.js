@@ -87,7 +87,7 @@ describe('promised-handlebars:', function () {
   it('should handle {{expr}} and {{{expr}}} like Handlebars does', function (done) {
     var template = Handlebars.compile(fixture('escaping.hbs'))
     return expect(template({a: '<a>', b: '<b>'}))
-      .to.eventually.equal('raw: <a> h(<a>) esc: &lt;a&gt; h(&lt;a&gt;)')
+      .to.eventually.equal('raw: <a> h(<a>)\nesc: &lt;a&gt; h(&lt;a&gt;)')
       .notify(done)
 
   })
