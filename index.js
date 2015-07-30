@@ -102,6 +102,9 @@ module.exports = function promisedHandlebars (Handlebars, options) {
   // Wrap the compiled function
   }
 
+  // Re-register all built-in-helpers to ensure that their methods are wrapped
+  engine.registerHelper(engine.helpers)
+
   /**
    * Wrap a function (template or block-helper callback)
    * such that
