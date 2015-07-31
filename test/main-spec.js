@@ -56,6 +56,9 @@ Handlebars.registerHelper({
   },
   'exists': function (file) {
     return require('q-io/fs').exists(file)
+  },
+  'toNumber': function(obj) {
+    return "("+Number(obj)+")";
   }
 })
 
@@ -116,7 +119,7 @@ describe('promised-handlebars:', function () {
   it('helpers passed in as parameters like {{#helper (otherhelper 123)}} should be resolved within the helper call', function (done) {
     var template = Handlebars.compile(fixture('helper-as-parameter.hbs'))
     return expect(template({}))
-      .to.eventually.equal('index.js exists\nondex.js does not exist')
+      .to.eventually.equal('index.js (1)\nondex.js (0)')
       .notify(done)
   })
   it('async helpers nested in synchronous block-helpers should work', function (done) {
