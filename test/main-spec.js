@@ -57,8 +57,8 @@ Handlebars.registerHelper({
   'exists': function (file) {
     return require('q-io/fs').exists(file)
   },
-  'toNumber': function(obj) {
-    return "("+Number(obj)+")";
+  'toNumber': function (obj) {
+    return '(' + Number(obj) + ')'
   }
 })
 

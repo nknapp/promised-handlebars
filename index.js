@@ -90,11 +90,16 @@ module.exports = function promisedHandlebars (Handlebars, options) {
       promises = []
       // Execute template (helpers are getting called and store promises into the array
       var resultWithPlaceholders = fn.apply(this, args)
-      return Q.all(promises).then(function (results) {
+
+      return Q.all([resultWithPlaceholders, Q.all(promises)]).spread(function (output, promiseResults) {
+        if (typeof output !== "string") {
+          // Make sure that non-string values are not converted to a string.
+          return output;
+        }
         // Promises are fulfilled. Insert real values into the result.
-        return String(resultWithPlaceholders).replace(regex, function (match, index, gt) {
+        return String(output).replace(regex, function (match, index, gt) {
           // Check whether promise result must be escaped
-          return gt === '>' ? results[index] : engine.escapeExpression(results[index])
+          return gt === '>' ? promiseResults[index] : engine.escapeExpression(promiseResults[index])
         })
       })
     } finally {
@@ -104,10 +109,10 @@ module.exports = function promisedHandlebars (Handlebars, options) {
   }
 
   /**
-   * Wrapper function for a helper.
+   * Call the helper and modify parameters and the result
    * Wrap `options.fn` and `options.inverse` to
    * return promises (eventually)
-   * and call `markAndPromise` afterwards
+   * and call `createMarker` afterwards
    */
   function helper (fn, args) {
     var _this = this
@@ -118,7 +123,23 @@ module.exports = function promisedHandlebars (Handlebars, options) {
     if (options.inverse) {
       options.inverse = wrap(options.inverse, prepareAndResolve)
     }
-    return markAndPromise.call(_this, fn, args)
+    // Handlebars calls helpers from template functions and appends the result to a string.
+    // In {{helper (inner-helper)}}, the inner-helper must return a promise
+    // They need a toString-method
+    return createMarker(function () {
+      // In `{{#each (inner-helper)}}abc{{/each}}`, if `inner-helper` returns a promise,
+      // `#each` must be called with the resolved value of the promise instead.
+      // TODO: Optimize case, where no promise-args exist
+      // Sadly, `Q.all` will always put us in a new event-loop-cycle, which means more overhead
+      // for instances of `promises`-array and possibly more overhead replacing placeholders
+      // in the helper result.
+      return Q.all(args).then(function (resolvedArgs) {
+        // We need a new `promises` array, because we are in a new event-loop-cycle now.
+        return prepareAndResolve(function () {
+          return fn.apply(_this, resolvedArgs)
+        })
+      })
+    })
   }
 
   /**
@@ -130,48 +151,51 @@ module.exports = function promisedHandlebars (Handlebars, options) {
    * * the index in thesarray
    * * ">"
    *
-   * @param fn the original function
-   * @param arguments the arguments passed to the original function
+   * @param {function} fn the original function
+   * @param {array<*>} arguments the arguments passed to the original function
    * @returns {*}
    */
-  function markAndPromise (fn, args) {
-    var rawResult = fn.apply(this, args)
-
-    if (!Q.isPromiseAlike(rawResult)) {
-      return rawResult
+  function createMarker (fn, args) {
+    var promiseOrValue = fn.apply(this, args)
+    promiseOrValue = resolveNow(promiseOrValue)
+    if (!Q.isPromiseAlike(promiseOrValue)) {
+      return promiseOrValue
     }
-
-    // Check if the promise is already resolved
-    var immediateResult = null
-    var immediateError = null
-    var result = Q(rawResult)
-      .then(function (result) {
-        // Fetch result if it is available in the same event-loop cycle
-        // Store an object to prevent the result being falsy
-        immediateResult = {result: result}
-        return result
-      })
-      .catch(function (error) {
-        // Fetch error if it is available in the same event-loop cycle
-        // Store an object to prevent the result being falsy
-        immediateError = {error: error}
-      })
-
-    if (immediateResult) {
-      return immediateResult.result
-    }
-    if (immediateError) {
-      throw immediateError.error
-    }
-
-    promises.push(result)
-    result.toString = function () {
+    promises.push(promiseOrValue)
+    promiseOrValue.toString = function () {
       return options.placeholder + (promises.length - 1) + '>'
     }
-    return result
+    return promiseOrValue
   }
 
   return engine
+}
+
+/**
+ * Return the promised value, if the promise is already resolved,
+ * otherwise the promise.
+ * @param {Promise|*} promiseOrValue a promise or a value
+ * @returns {Promise|*} the promised value or the promise
+ */
+function resolveNow (promiseOrValue) {
+  if (!Q.isPromiseAlike(promiseOrValue)) {
+    return promiseOrValue
+  }
+  // Check if the promise is already resolved
+  var immediateResult = null
+  promiseOrValue.done(function (result) {
+    // Fetch result if it is available in the same event-loop cycle
+    // Store an object to prevent the result being falsy
+    immediateResult = {result: result}
+    return result
+  })
+
+  if (immediateResult) {
+    return immediateResult.result
+  } else {
+    // Cannot resolve
+    return promiseOrValue
+  }
 }
 
 /**
