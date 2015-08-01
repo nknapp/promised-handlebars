@@ -4,8 +4,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Upcoming
 ### Fix 
-* Make sure that builtin block-helpers are also wrapped appropriately to work with
+* Make sure that builtin block-helpers (`#each`, `#if`) are also wrapped appropriately to work with
   promise-helpers inside their blocks
+* Issue #3: Allow async helpers as arguments to other helpers (`{{#each (helper)}}abc{{/each}}`)
 
 ## v0.3.2 - 2015-07-30
 ### Fix
