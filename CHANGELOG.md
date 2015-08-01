@@ -2,7 +2,7 @@
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Upcoming
+## v0.3.3 - 2015-08-01
 ### Fix 
 * Make sure that builtin block-helpers (`#each`, `#if`) are also wrapped appropriately to work with
   promise-helpers inside their blocks
