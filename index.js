@@ -12,7 +12,9 @@ var Q = require('q')
 // Store for promises created during a template execution
 var promises = null
 
-/**
+
+module.exports = promisedHandlebars;
+  /**
  * Returns a new Handlebars instance that
  * * allows helpers to return promises
  * * creates `compiled` templates that always
@@ -26,8 +28,7 @@ var promises = null
  *   the promised results
  * @returns {Handlebars} a modified Handlebars object
  */
-
-module.exports = function promisedHandlebars (Handlebars, options) {
+function promisedHandlebars (Handlebars, options) {
   options = options || {}
   options.placeholder = options.placeholder || '\u0001'
 
