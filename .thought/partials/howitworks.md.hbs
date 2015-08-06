@@ -7,17 +7,21 @@ can be called to render a JSON.
 This module wraps the compiled template function and helpers register with 
 `registerHelper` in order to do the following:
 
-* The helper return values are not directly insert into the template output.
-  Instead, they are stored in an array that is initialized on every execution
-  of the compiled template.
+* In case the helper returns an object that is `Q.isPromiseAlike`, the 
+  value is inserted into a temporary `promises-array`.
 
-* Instead of the helper-return value, a placeholder character is returned and
-  inserted into the template output.
+* The `.toString` method of the helper-return value is modified to return
+  a concatenated string of
+  * A placeholder-character that is not supposed to occur in the template (currently `\u0001`).
+  * The index of the inserted value within the `promises-array` (as stringified digits)
+  * A `>` character that is used to detect whether the helper output was be escaped.
 
 * After the execution of the compiled template, a combined promise of all
   helper return values is created with `Q.all()` and returned when this 
   promise (i.e. all helper-return-values) are resolved, all placeholder 
-  character in the template output is replaced by the actual resolved values.
+  characters in the template output are replaced by the actual resolved values.
+  The inserted `>`-character is now used to determine whether to escape the helper output.
+  (If it is was converted to `&gt;`, it is escaped, otherwise not) 
 
 The result is a promise for the finalized template output.
 
@@ -50,16 +54,12 @@ There are things to think about that are covered by this module:
   The side-effect is that synchronous helper-libraries can still be used, while asynchronous
   block helpers are possible, but must handle the promise return-value correctly.
 
+* Helper arguments (like in `{{helper (promise-helper arg) hashArg=(promise-helper arg2)}}`)
+  need to be resolved before running the actual helper.
+
+* Builtin-helpers must be wrapped as well to allow something like `{{#each (promise-helper arg)}}abc{{/each}}`
+
 ### Caveats  / TODOs
-
-* The whole algorithm is based on the assumption, that the Handlebars template
-  is calling and inserting helper return-values in a linear fashion. 
-  If helpers are not called in the same order in which the values are inserted
-  in the template, this module will shuffle values. However, this did not
-  happen in the example and in the first tests. More complicated tests 
-  with partials are needed to verify the behaviour.
-
-  If this does not work out, I have to go for uuids, but I'd rather omit that.
 
 * The algorithm currently uses the char `\u0001` as placeholder in the 
   template. If the template or any partial or the input data contains this 
