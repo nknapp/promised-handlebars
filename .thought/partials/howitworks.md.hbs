@@ -53,11 +53,10 @@ There are things to think about that are covered by this module:
   will be applied and a promise will be returned instead of the actual return value.
   The side-effect is that synchronous helper-libraries can still be used, while asynchronous
   block helpers are possible, but must handle the promise return-value correctly.
-
-* Helper arguments (like in `{{helper (promise-helper arg) hashArg=(promise-helper arg2)}}`)
+* Helper arguments (like in `\{\{helper (promise-helper arg) hashArg=(promise-helper arg2)}}`)
   need to be resolved before running the actual helper.
 
-* Builtin-helpers must be wrapped as well to allow something like `{{#each (promise-helper arg)}}abc{{/each}}`
+* Builtin-helpers must be wrapped as well to allow something like `\{\{#each (promise-helper arg)}}abc\{\{/each}}`
 
 ### Caveats  / TODOs
 
