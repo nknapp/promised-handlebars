@@ -2,7 +2,7 @@
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Upcoming
+## v0.3.4 - 2015-08-06
 ### Fix
 * Resolve helper arguments with `q-deep` rather than `Q.all`, so that hash-arguments are
   resolved as well.
