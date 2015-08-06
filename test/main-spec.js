@@ -70,6 +70,7 @@ Handlebars.registerHelper({
 
 Handlebars.registerPartial('a', "{{helper '10' 'partialA'}}")
 Handlebars.registerPartial('b', "{{helper '10' 'partialB'}}")
+Handlebars.registerPartial('identity', "id({{.}})")
 
 describe('promised-handlebars:', function () {
   it('should return a promise for the ouput with helpers resolved', function (done) {
@@ -128,6 +129,14 @@ describe('promised-handlebars:', function () {
       .to.eventually.equal('index.js (1)\nondex.js (0)')
       .notify(done)
   })
+
+  it('helpers passed into partials as parameters like {{>partial (helper 123)}} should be resolved within the helper call', function (done) {
+    var template = Handlebars.compile(fixture('helper-as-parameter-for-partial.hbs'))
+    return expect(template({}))
+      .to.eventually.equal('id(h(abc))')
+      .notify(done)
+  })
+
   it('helpers passed in via as hash-parameter like {{#helper param=(otherhelper 123)}} should be resolved within the helper call', function (done) {
     var template = Handlebars.compile(fixture('helper-as-hash.hbs'))
     return expect(template({}))
