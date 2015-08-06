@@ -8,13 +8,13 @@
 'use strict'
 
 var Q = require('q')
+var deep = require('q-deep')
 
 // Store for promises created during a template execution
 var promises = null
 
-
-module.exports = promisedHandlebars;
-  /**
+module.exports = promisedHandlebars
+/**
  * Returns a new Handlebars instance that
  * * allows helpers to return promises
  * * creates `compiled` templates that always
@@ -93,9 +93,9 @@ function promisedHandlebars (Handlebars, options) {
       var resultWithPlaceholders = fn.apply(this, args)
 
       return Q.all([resultWithPlaceholders, Q.all(promises)]).spread(function (output, promiseResults) {
-        if (typeof output !== "string") {
+        if (typeof output !== 'string') {
           // Make sure that non-string values are not converted to a string.
-          return output;
+          return output
         }
         // Promises are fulfilled. Insert real values into the result.
         return String(output).replace(regex, function (match, index, gt) {
@@ -134,7 +134,7 @@ function promisedHandlebars (Handlebars, options) {
       // Sadly, `Q.all` will always put us in a new event-loop-cycle, which means more overhead
       // for instances of `promises`-array and possibly more overhead replacing placeholders
       // in the helper result.
-      return Q.all(args).then(function (resolvedArgs) {
+      return deep(args).then(function (resolvedArgs) {
         // We need a new `promises` array, because we are in a new event-loop-cycle now.
         return prepareAndResolve(function () {
           return fn.apply(_this, resolvedArgs)

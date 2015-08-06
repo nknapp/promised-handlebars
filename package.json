@@ -28,7 +28,8 @@
     "preversion": "npm run thoughtcheck"
   },
   "dependencies": {
-    "q": "^1.4.1"
+    "q": "^1.4.1",
+    "q-deep": "^1.0.1"
   },
   "standard": {
     "ignore": [

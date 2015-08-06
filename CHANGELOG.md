@@ -2,6 +2,11 @@
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Upcoming
+### Fix
+* Resolve helper arguments with `q-deep` rather than `Q.all`, so that hash-arguments are
+  resolved as well.
+
 ## v0.3.3 - 2015-08-01
 ### Fix 
 * Make sure that builtin block-helpers (`#each`, `#if`) are also wrapped appropriately to work with

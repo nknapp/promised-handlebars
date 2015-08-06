@@ -30,6 +30,12 @@ Handlebars.registerHelper({
       return 'h(' + value + ')'
     })
   },
+  'helper-hash': function (options) {
+    var hashString = Object.keys(options.hash).sort().map(function (key) {
+      return key + '=' + options.hash[key]
+    }).join(',')
+    return 'hash(' + hashString + ')'
+  },
   'block': function (delay, value, options) {
     return Q.delay(delay)
       .then(function () {
@@ -120,6 +126,12 @@ describe('promised-handlebars:', function () {
     var template = Handlebars.compile(fixture('helper-as-parameter.hbs'))
     return expect(template({}))
       .to.eventually.equal('index.js (1)\nondex.js (0)')
+      .notify(done)
+  })
+  it('helpers passed in via as hash-parameter like {{#helper param=(otherhelper 123)}} should be resolved within the helper call', function (done) {
+    var template = Handlebars.compile(fixture('helper-as-hash.hbs'))
+    return expect(template({}))
+      .to.eventually.equal('hash(false=h(false),true=h(true))')
       .notify(done)
   })
   it('async helpers nested in synchronous block-helpers should work', function (done) {
