@@ -151,7 +151,7 @@ describe('promised-handlebars:', function () {
   })
   it('async helpers nested in synchronous builtin block-helpers should work', function (done) {
     var template = Handlebars.compile(fixture('builtin-block-helper-nests-async.hbs'))
-    return expect(template({ arr: [{ a: 'aa'}, { a: 'bb'}]}))
+    return expect(template({arr: [{a: 'aa'}, {a: 'bb'}]}))
       .to.eventually.equal('h(aa)-h(bb)-')
       .notify(done)
   })
