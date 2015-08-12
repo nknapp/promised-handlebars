@@ -70,7 +70,7 @@ Handlebars.registerHelper({
 
 Handlebars.registerPartial('a', "{{helper '10' 'partialA'}}")
 Handlebars.registerPartial('b', "{{helper '10' 'partialB'}}")
-Handlebars.registerPartial('identity', "id({{.}})")
+Handlebars.registerPartial('identity', 'id({{.}})')
 
 describe('promised-handlebars:', function () {
   it('should return a promise for the ouput with helpers resolved', function (done) {
