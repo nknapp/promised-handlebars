@@ -28,8 +28,7 @@
     "preversion": "npm run thoughtcheck"
   },
   "dependencies": {
-    "q": "^1.4.1",
-    "q-deep": "^1.0.1"
+    "q": "^1.4.1"
   },
   "standard": {
     "ignore": [
@@ -47,9 +46,5 @@
   },
   "peerDependencies": {
     "handlebars": "^3.0.3"
-  },
-  "paths": {
-    "relative": "package.json",
-    "absolute": "/home/nknappmeier/privat/node-libraries/promised-handlebars/package.json"
   }
 }
