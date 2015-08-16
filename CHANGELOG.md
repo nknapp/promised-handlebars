@@ -5,7 +5,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fix
 
 * Documentation update
-
+* Check for `.done()` function when trying to retrieve the immediate value of a promise.
+  
 ## v0.4.0 - 2015-08-16
 
 ### Fix
@@ -14,8 +15,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   from `options.fn()` containing no promises. It can therefore modify the string (without 
   the risk of dealing with placeholders)
 
-* Check for `.done()` function when trying to retrieve the immediate value of a promise.
-  
 ### Change
 
 * Helper arguments are not resolved with `q-deep` anymore, because this is to slow in large template
