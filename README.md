@@ -84,7 +84,7 @@ template({
 ```
 
 This will generate the following output: 
-`Darmstadt: 16.16°C`
+`Darmstadt: 15.99°C`
 
 
 
@@ -178,8 +178,8 @@ Handlebars.registerHelper({
     })
   },
   // Trim whitespaces from block-content result.
-  'trim': function(options) {
-    return String(options.fn()).trim();
+  'trim': function (options) {
+    return String(options.fn()).trim()
   }
 })
 
