@@ -20,7 +20,7 @@ Handlebars.registerHelper({
         return contents.trim()
       })
   }
-  // -----</snip>------------
+// -----</snip>------------
 })
 
 var template = Handlebars.compile('{{#trim}}{{#if (eventually-true)}}   abc   {{/if}}{{/trim}}')

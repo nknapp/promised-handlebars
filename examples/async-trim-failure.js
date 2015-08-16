@@ -10,8 +10,8 @@ Handlebars.registerHelper({
     })
   },
   // Trim whitespaces from block-content result.
-  'trim': function(options) {
-    return String(options.fn()).trim();
+  'trim': function (options) {
+    return String(options.fn()).trim()
   }
 })
 
@@ -19,4 +19,3 @@ var template = Handlebars.compile('{{#trim}}{{#if (eventually-true)}}   abc   {{
 
 // We would expect "abc", but...
 template({}).then(JSON.stringify).done(console.log)
-
