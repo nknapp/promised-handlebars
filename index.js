@@ -214,7 +214,7 @@ function promisedHandlebars (Handlebars, options) {
  * @returns {Promise|*} the promised value or the promise
  */
 function resolveNow (promiseOrValue) {
-  if (!Q.isPromiseAlike(promiseOrValue)) {
+  if (!(Q.isPromiseAlike(promiseOrValue) && typeof promiseOrValue.done === 'function') ) {
     return promiseOrValue
   }
   // Check if the promise is already resolved
