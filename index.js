@@ -184,7 +184,7 @@ function promisedHandlebars (Handlebars, options) {
    * the promises-array and set its `.toString` method
    * to
    * * the placeholder, followed by
-   * * the index in thesarray
+   * * the index in the array
    * * ">"
    *
    * @param {function} fn the original function
