@@ -65,6 +65,13 @@ Handlebars.registerHelper({
   },
   'toNumber': function (obj) {
     return '(' + Number(obj) + ')'
+  },
+  // Trim block contents
+  'trim': function (options) {
+    return options.fn(this).trim()
+  },
+  'spaces': function (count) {
+    return '                                              '.substr(0, count)
   }
 })
 
@@ -153,6 +160,13 @@ describe('promised-handlebars:', function () {
     var template = Handlebars.compile(fixture('builtin-block-helper-nests-async.hbs'))
     return expect(template({arr: [{a: 'aa'}, {a: 'bb'}]}))
       .to.eventually.equal('h(aa)-h(bb)-')
+      .notify(done)
+  })
+
+  it('a completely synchronous block helper (with synchronous resolvable content) not have to deal with placeholders', function (done) {
+    var template = Handlebars.compile(fixture('block-helper-manipulate.hbs'))
+    return expect(template({arr: [{a: 'aa'}, {a: 'bb'}]}))
+      .to.eventually.equal('abc')
       .notify(done)
   })
 

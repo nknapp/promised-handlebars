@@ -8,7 +8,6 @@
 'use strict'
 
 var Q = require('q')
-var deep = require('q-deep')
 
 // Store for promises created during a template execution
 var promises = null
@@ -124,18 +123,54 @@ function promisedHandlebars (Handlebars, options) {
     if (options.inverse) {
       options.inverse = wrap(options.inverse, prepareAndResolve)
     }
+    var hash = options.hash
+
     // Handlebars calls helpers from template functions and appends the result to a string.
     // In {{helper (inner-helper)}}, the inner-helper must return a promise
     // They need a toString-method
     return createMarker(function () {
       // In `{{#each (inner-helper)}}abc{{/each}}`, if `inner-helper` returns a promise,
       // `#each` must be called with the resolved value of the promise instead.
-      // TODO: Optimize case, where no promise-args exist
+
+      // Check whether there are promises at all
+      var promiseArgs = false
+      args.forEach(function (arg) {
+        promiseArgs = promiseArgs || Q.isPromiseAlike(arg)
+      })
+      if (hash) {
+        Object.keys(hash).forEach(function (key) {
+          promiseArgs = promiseArgs || Q.isPromiseAlike(hash[key])
+        })
+      }
+      if (!promiseArgs) {
+        return fn.apply(_this, args)
+      }
+
+      // Condense promises from args and resolve them
+      var argsPromise = Q.all(args)
+      var hashPromise = {}
+      // Resolve hash
+      if (hash) {
+        var hashKeys = Object.keys(hash)
+        hashPromise = Q.all(hashKeys.map(function (key) {
+          return hash[key]
+        })).then(function (resolvedHashValues) {
+          var result = {}
+          for (var i = 0; i < hashKeys.length; i++) {
+            result[hashKeys[i]] = resolvedHashValues[i]
+          }
+          return result
+        })
+      }
       // Sadly, `Q.all` will always put us in a new event-loop-cycle, which means more overhead
       // for instances of `promises`-array and possibly more overhead replacing placeholders
       // in the helper result.
-      return deep(args).then(function (resolvedArgs) {
+      // That's why we only call it if necessary
+      return Q.all([argsPromise, hashPromise]).spread(function (resolvedArgs, resolvedHash) {
         // We need a new `promises` array, because we are in a new event-loop-cycle now.
+        if (hash) {
+          resolvedArgs[resolvedArgs.length - 1].hash = resolvedHash
+        }
         return prepareAndResolve(function () {
           return fn.apply(_this, resolvedArgs)
         })

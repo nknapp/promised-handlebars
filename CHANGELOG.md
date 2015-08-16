@@ -2,6 +2,20 @@
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Upcoming
+
+### Fix
+
+* In a completely synchronous setup, a block helper is now guaranteed to receive the real string
+  from `options.fn()` containing no promises. It can therefore modify the string (without 
+  the risk of dealing with placeholders)
+  
+### Change
+
+* Helper arguments are not resolved with `q-deep` anymore, because this is to slow in large template
+  structures with large datasets. Instead, only each parameter (but no recursively) and each hash-arguments
+  is resolved.
+
 ## v0.3.4 - 2015-08-06
 ### Fix
 * Resolve helper arguments with `q-deep` rather than `Q.all`, so that hash-arguments are
