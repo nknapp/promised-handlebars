@@ -13,6 +13,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * In a completely synchronous setup, a block helper is now guaranteed to receive the real string
   from `options.fn()` containing no promises. It can therefore modify the string (without 
   the risk of dealing with placeholders)
+
+* Check for `.done()` function when trying to retrieve the immediate value of a promise.
   
 ### Change
 
