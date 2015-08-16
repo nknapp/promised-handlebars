@@ -44,11 +44,8 @@ template({
 }).done(console.log)
 ```
 
-This will generate the following output
-
-```
-123abc456xyz
-```
+This will generate the following output: 
+`123abc456xyz`
 
 ### Block helpers
 
@@ -86,11 +83,8 @@ template({
 }).done(console.log)
 ```
 
-This will generate the following output
-
-```
-Darmstadt: 17.99°C
-```
+This will generate the following output: 
+`Darmstadt: 16.16°C`
 
 
 
@@ -151,10 +145,10 @@ There are things to think about that are covered by this module:
   will be applied and a promise will be returned instead of the actual return value.
   The side-effect is that synchronous helper-libraries can still be used, while asynchronous
   block helpers are possible, but must handle the promise return-value correctly.
-* Helper arguments (like in `\{\{helper (promise-helper arg) hashArg=(promise-helper arg2)}}`)
+* Helper arguments (like in `{{helper (promise-helper arg) hashArg=(promise-helper arg2)}}`)
   need to be resolved before running the actual helper.
 
-* Builtin-helpers must be wrapped as well to allow something like `\{\{#each (promise-helper arg)}}abc\{\{/each}}`
+* Builtin-helpers must be wrapped as well to allow something like `{{#each (promise-helper arg)}}abc\{\{/each}}`
 
 ### Caveats  / TODOs
 
@@ -164,6 +158,66 @@ There are things to think about that are covered by this module:
   This can be ommited by passing an other character in the `options` parameter,
   but it would be better to determine a character automatically based on the 
   actual input.
+
+* Although many edge-cases are handled by this module, there are some cases that 
+  cannot be handled properly.
+  The following example uses a synchronous block-helper `{{#trim}}...{{trim}}` to remove whitespace
+  from both ends of the enclosed block and a asynchronous helper `{{promise-helper}}` that returns a
+  promise for a boolean value:
+
+  ```js
+var promisedHandlebars = require('promised-handlebars')
+var Q = require('q')
+var Handlebars = promisedHandlebars(require('handlebars'))
+
+Handlebars.registerHelper({
+  // Returns a promise for `true`
+  'eventually-true': function () {
+    return Q.delay(1).then(function () {
+      return true
+    })
+  },
+  // Trim whitespaces from block-content result.
+  'trim': function(options) {
+    return String(options.fn()).trim();
+  }
+})
+
+var template = Handlebars.compile('{{#trim}}{{#if (eventually-true)}}   abc   {{/if}}{{/trim}}')
+
+// We would expect "abc", but...
+template({}).then(JSON.stringify).done(console.log)
+```
+
+  The output of the example still contains the surrounding spaces, so the `{{#trim}}` helper
+  appearently did not work:
+  `"   abc   "`
+
+  The problem is, that the `{{#if}}`-helper cannot be executed until the result of `{{eventually-true}}`
+  is resolved. This means, the the `{{#if}}`-helper must return a promise instead of the actuall string.
+  Returning a promise means inserting a placeholder, but calling `.trim()` on the placeholder does not return
+  the whitespaces around the resolved result. 
+
+  If you are writing the `{{#trim}}`-helper yourself, you can adjust it so that it uses promises:
+
+  ```js
+'trim': function (options) {
+    return Q()
+      .then(function () {
+        return options.fn()
+      })
+      .then(function (contents) {
+        return contents.trim()
+      })
+  }
+```
+
+  Then, the output will be correct: 
+  `"abc"`
+ 
+  If you cannot easily adapt the `{{#trim}}`-helper, you have a problem.
+  **Suggestions welcome**.
+
 
 * See [open issues](https://github.com/nknapp/promised-handlebars/issues) for 
   other problems.
@@ -179,6 +233,7 @@ There are things to think about that are covered by this module:
   two years ago (as of July 2015), which is why I did not take a closer look. But it seems to use 
   uuids to mark insertion-points for promise-results.
 
+  
 ## License
 
 `promised-handlebars` is published under the MIT-license. 

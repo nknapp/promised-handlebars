@@ -68,7 +68,7 @@ Handlebars.registerHelper({
   },
   // Trim block contents
   'trim': function (options) {
-    return options.fn(this).trim()
+    return String(options.fn(this)).trim()
   },
   'spaces': function (count) {
     return '                                              '.substr(0, count)
