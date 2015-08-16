@@ -194,7 +194,7 @@ template({}).then(JSON.stringify).done(console.log)
   `"   abc   "`
 
   The problem is, that the `{{#if}}`-helper cannot be executed until the result of `{{eventually-true}}`
-  is resolved. This means, the the `{{#if}}`-helper must return a promise instead of the actuall string.
+  is resolved. This means, that the `{{#if}}`-helper must return a promise instead of the actual string.
   Returning a promise means inserting a placeholder, but calling `.trim()` on the placeholder does not return
   the whitespaces around the resolved result. 
 
