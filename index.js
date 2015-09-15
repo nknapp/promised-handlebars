@@ -162,7 +162,7 @@ function promisedHandlebars (Handlebars, options) {
           return result
         })
       }
-      // Sadly, `Q.all` will always put us in a new event-loop-cycle, which means more overhead
+      // `Q.all` will always put us in a new event-loop-cycle, which means more overhead
       // for instances of `promises`-array and possibly more overhead replacing placeholders
       // in the helper result.
       // That's why we only call it if necessary
