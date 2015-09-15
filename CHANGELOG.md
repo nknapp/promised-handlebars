@@ -2,7 +2,7 @@
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Upcoming
+## v0.5.0 - 2015-09-15
 
 * Bump version to 1.0.0 to show stability of the api
 
