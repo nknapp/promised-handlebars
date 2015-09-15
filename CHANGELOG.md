@@ -2,6 +2,10 @@
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## v1.0.0 - 2015-09-15
+
+* Bump version to 1.0.0 to show API stability
+
 ## v0.4.2 - 2015-08-17
 
 ### Fix
