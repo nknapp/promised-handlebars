@@ -84,7 +84,7 @@ template({
 ```
 
 This will generate the following output: 
-`Darmstadt: 15.99°C`
+`Darmstadt: 10.59°C`
 
 
 
@@ -191,7 +191,9 @@ template({}).then(JSON.stringify).done(console.log)
 
   The output of the example still contains the surrounding spaces, so the `{{#trim}}` helper
   appearently did not work:
-  `"   abc   "`
+  `{ state: 'pending' }
+   abc   
+"   abc   "`
 
   The problem is, that the `{{#if}}`-helper cannot be executed until the result of `{{eventually-true}}`
   is resolved. This means, that the `{{#if}}`-helper must return a promise instead of the actual string.
@@ -213,7 +215,9 @@ template({}).then(JSON.stringify).done(console.log)
 ```
 
   Then, the output will be correct: 
-  `"abc"`
+  `{ state: 'pending' }
+   abc   
+"abc"`
  
   If you cannot easily adapt the `{{#trim}}`-helper, you have a problem.
   **Suggestions welcome**.
