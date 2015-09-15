@@ -72,6 +72,11 @@ Handlebars.registerHelper({
   },
   'spaces': function (count) {
     return '                                              '.substr(0, count)
+  },
+  'eventually-true': function () {
+    return Q.delay(1).then(function () {
+      return true
+    })
   }
 })
 
@@ -79,7 +84,7 @@ Handlebars.registerPartial('a', "{{helper '10' 'partialA'}}")
 Handlebars.registerPartial('b', "{{helper '10' 'partialB'}}")
 Handlebars.registerPartial('identity', 'id({{.}})')
 
-describe('promised-handlebars:', function () {
+xdescribe('promised-handlebars:', function () {
   it('should return a promise for the ouput with helpers resolved', function (done) {
     var template = Handlebars.compile(fixture('simple-helper.hbs'))
     return expect(template({a: 'abc', b: 'xyz'}))
@@ -106,7 +111,6 @@ describe('promised-handlebars:', function () {
     return expect(template({a: '<a>', b: '<b>'}))
       .to.eventually.equal('raw: <a> h(<a>)\nesc: &lt;a&gt; h(&lt;a&gt;)')
       .notify(done)
-
   })
 
   it('should work correctly when partials are called', function (done) {
@@ -150,12 +154,14 @@ describe('promised-handlebars:', function () {
       .to.eventually.equal('hash(false=h(false),true=h(true))')
       .notify(done)
   })
+
   it('async helpers nested in synchronous block-helpers should work', function (done) {
     var template = Handlebars.compile(fixture('synchronous-block-helper-nests-async.hbs'))
     return expect(template({a: 'aa'}))
       .to.eventually.equal('h(aa),h(aa)')
       .notify(done)
   })
+
   it('async helpers nested in synchronous builtin block-helpers should work', function (done) {
     var template = Handlebars.compile(fixture('builtin-block-helper-nests-async.hbs'))
     return expect(template({arr: [{a: 'aa'}, {a: 'bb'}]}))
@@ -169,7 +175,16 @@ describe('promised-handlebars:', function () {
       .to.eventually.equal('abc')
       .notify(done)
   })
+})
 
+describe("", function() {
+  // Issue: #5
+  it('a completely synchronous block helper with an asynchronous parameter shoud still return a string', function (done) {
+    var template = Handlebars.compile(fixture('block-helper-with-promise-argument.hbs'))
+    return expect(template({}))
+      .to.eventually.equal('abc')
+      .notify(done)
+  })
 })
 
 function fixture (file) {

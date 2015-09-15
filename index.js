@@ -171,9 +171,15 @@ function promisedHandlebars (Handlebars, options) {
         if (hash) {
           resolvedArgs[resolvedArgs.length - 1].hash = resolvedHash
         }
-        return prepareAndResolve(function () {
+
+        var result = prepareAndResolve(function () {
           return fn.apply(_this, resolvedArgs)
+        }).then(function (res) {
+          console.log(res)
+          return res;
         })
+        console.log(result)
+        return result
       })
     })
   }
