@@ -106,7 +106,6 @@ describe('promised-handlebars:', function () {
     return expect(template({a: '<a>', b: '<b>'}))
       .to.eventually.equal('raw: <a> h(<a>)\nesc: &lt;a&gt; h(&lt;a&gt;)')
       .notify(done)
-
   })
 
   it('should work correctly when partials are called', function (done) {
@@ -169,7 +168,6 @@ describe('promised-handlebars:', function () {
       .to.eventually.equal('abc')
       .notify(done)
   })
-
 })
 
 function fixture (file) {
