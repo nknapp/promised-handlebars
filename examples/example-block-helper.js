@@ -4,20 +4,20 @@ var httpGet = require('get-promise')
 
 // A block helper (retrieve weather for a city from openweathermap.org)
 // Execute the helper-block with the weather result
-Handlebars.registerHelper('weather', function (value, options) {
-  var url = 'http://api.openweathermap.org/data/2.5/weather?q=' + value + '&units=metric'
-  return httpGet(url)
+Handlebars.registerHelper('github-user', function (value, options) {
+  var url = 'https://api.github.com/users/' + value
+  return httpGet(url, { headers: { 'User-Agent': 'Node' } })
     .get('data')
     .then(JSON.parse)
-    .then(function (weather) {
+    .then(function (data) {
       // `options.fn` returns a promise. Wrapping brackets must be added after resolving
-      return options.fn(weather)
+      return options.fn(data)
     })
 })
 
-var template = Handlebars.compile('{{city}}: {{#weather city}}{{{main.temp}}}°C{{/weather}}')
+var template = Handlebars.compile('{{username}}: {{#github-user username}}{{{name}}}{{/github-user}}')
 
 // The whole compiled function returns a promise as well
 template({
-  city: 'Darmstadt'
+  username: 'nknapp'
 }).done(console.log)
