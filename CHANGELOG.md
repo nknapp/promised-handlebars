@@ -1,6 +1,6 @@
 # Change Log
 
-## Upcoming
+## v1.0.1 - 2015-10-30
 
 ## Fix
 
