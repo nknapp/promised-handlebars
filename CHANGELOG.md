@@ -1,6 +1,6 @@
 # Change Log
 
-## Upcoming 
+## v1.0.2 - 2015-10-30 
 
 * Documentation fix
 
