@@ -34,7 +34,7 @@ Handlebars.registerHelper({
     var hashString = Object.keys(options.hash).sort().map(function (key) {
       return key + '=' + options.hash[key]
     }).join(',')
-    return 'hash(' + hashString + ')'
+    return new Handlebars.SafeString('hash(' + hashString + ')')
   },
   'block': function (delay, value, options) {
     return Q.delay(delay)

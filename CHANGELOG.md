@@ -1,5 +1,11 @@
 # Change Log
 
+## Upcoming
+
+## Fix
+
+* Allow `handlebars@4` as peer-dependencies (not just 3) 
+
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## v1.0.0 - 2015-09-15
