@@ -78,7 +78,7 @@ function promisedHandlebars (Handlebars, options) {
    */
   function prepareAndResolve (fn, args) {
     if (promises) {
-      // "promises" array already exists: We are executing a partial or a synchronous block
+      // "promises" array already exists: Werm are executing a partial or a synchronous block
       // helper. That means we are called from somewhere within Handlebars. Handlebars does
       // not like promises, so we act as normal as possible.
       return fn.apply(this, args)
@@ -193,7 +193,6 @@ function promisedHandlebars (Handlebars, options) {
    */
   function createMarker (fn, args) {
     var promiseOrValue = fn.apply(this, args)
-    promiseOrValue = resolveNow(promiseOrValue)
     if (!Q.isPromiseAlike(promiseOrValue)) {
       return promiseOrValue
     }
@@ -205,33 +204,6 @@ function promisedHandlebars (Handlebars, options) {
   }
 
   return engine
-}
-
-/**
- * Return the promised value, if the promise is already resolved,
- * otherwise the promise.
- * @param {Promise|*} promiseOrValue a promise or a value
- * @returns {Promise|*} the promised value or the promise
- */
-function resolveNow (promiseOrValue) {
-  if (!(Q.isPromiseAlike(promiseOrValue) && typeof promiseOrValue.done === 'function')) {
-    return promiseOrValue
-  }
-  // Check if the promise is already resolved
-  var immediateResult = null
-  promiseOrValue.done(function (result) {
-    // Fetch result if it is available in the same event-loop cycle
-    // Store an object to prevent the result being falsy
-    immediateResult = {result: result}
-    return result
-  })
-
-  if (immediateResult) {
-    return immediateResult.result
-  } else {
-    // Cannot resolve
-    return promiseOrValue
-  }
 }
 
 /**
