@@ -78,7 +78,7 @@ function promisedHandlebars (Handlebars, options) {
    */
   function prepareAndResolve (fn, args) {
     if (promises) {
-      // "promises" array already exists: Werm are executing a partial or a synchronous block
+      // "promises" array already exists: We are executing a partial or a synchronous block
       // helper. That means we are called from somewhere within Handlebars. Handlebars does
       // not like promises, so we act as normal as possible.
       return fn.apply(this, args)
