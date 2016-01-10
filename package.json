@@ -36,7 +36,16 @@
       "spec/fixtures/**"
     ]
   },
-  "keywords": [],
+  "keywords": [
+    "handlebars",
+    "async",
+    "helpers",
+    "promise",
+    "q"
+  ],
+  "files": [
+    "index.js"
+  ],
   "devDependencies": {
     "chai": "^3.2.0",
     "chai-as-promised": "^5.1.0",
