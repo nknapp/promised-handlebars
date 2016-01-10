@@ -46,5 +46,10 @@
   },
   "peerDependencies": {
     "handlebars": "3||4"
+  },
+  "config": {
+    "ghooks": {
+      "pre-commit": "thoughtful precommit && standard --format"
+    }
   }
 }
