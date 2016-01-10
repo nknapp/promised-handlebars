@@ -188,7 +188,7 @@ function promisedHandlebars (Handlebars, options) {
    * * ">"
    *
    * @param {function} fn the original function
-   * @param {array<*>} arguments the arguments passed to the original function
+   * @param {Array<*>} args the arguments passed to the original function
    * @returns {*}
    */
   function createMarker (fn, args) {
