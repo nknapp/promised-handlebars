@@ -1,4 +1,8 @@
-# promised-handlebars
+# promised-handlebars 
+[![NPM version](https://badge.fury.io/js/promised-handlebars.svg)](http://badge.fury.io/js/promised-handlebars) 
+[![Build Status](https://travis-ci.org/nknapp/promised-handlebars.svg)](https://travis-ci.org/nknapp/promised-handlebars) 
+[![Coverage Status](https://img.shields.io/coveralls/nknapp/promised-handlebars.svg)](https://coveralls.io/r/nknapp/promised-handlebars)
+
 
 > Wrapper for Handlebars that allows helpers returning promises
 
