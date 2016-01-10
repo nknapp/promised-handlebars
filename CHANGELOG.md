@@ -1,5 +1,14 @@
 # Change Log
 
+<a name="current-release"></a>
+# Version 1.0.3 (Sun, 10 Jan 2016 22:13:28 GMT)
+
+* [00c537e](https://github.com/nknapp/promised-handlebars/commit/00c537e) Run code-style hook and Thoughtful prior to commit - Nils Knappmeier
+* [620919a](https://github.com/nknapp/promised-handlebars/commit/620919a) Call to Handlebars.registerHelper(string, function) to increase code coverage - Nils Knappmeier
+* [eeb0e33](https://github.com/nknapp/promised-handlebars/commit/eeb0e33) Remove redundant function - Nils Knappmeier
+* [d8b7ee2](https://github.com/nknapp/promised-handlebars/commit/d8b7ee2) Added Node 4 and 5 to Travis. Fix coverage tests. Add badges for Travis and Coveralls - Nils Knappmeier
+
+
 ## v1.0.2 - 2015-10-30 
 
 * Documentation fix
