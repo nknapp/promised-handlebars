@@ -66,13 +66,15 @@ Handlebars.registerHelper({
   'toNumber': function (obj) {
     return '(' + Number(obj) + ')'
   },
-  // Trim block contents
-  'trim': function (options) {
-    return String(options.fn(this)).trim()
-  },
   'spaces': function (count) {
     return '                                              '.substr(0, count)
   }
+})
+
+// Call "registerHelper(name, helper) for code coverage
+// Trim block contents
+Handlebars.registerHelper('trim',function (options) {
+  return String(options.fn(this)).trim()
 })
 
 Handlebars.registerPartial('a', "{{helper '10' 'partialA'}}")
