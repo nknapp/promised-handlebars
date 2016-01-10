@@ -73,7 +73,7 @@ Handlebars.registerHelper({
 
 // Call "registerHelper(name, helper) for code coverage
 // Trim block contents
-Handlebars.registerHelper('trim',function (options) {
+Handlebars.registerHelper('trim', function (options) {
   return String(options.fn(this)).trim()
 })
 
