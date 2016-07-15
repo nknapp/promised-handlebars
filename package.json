@@ -19,8 +19,8 @@
   "scripts": {
     "pretest": "standard --version || npm -g install standard",
     "test": "mocha && standard",
-    "preformat": "standard --version || npm -g install standard",
-    "format": "standard --format",
+    "preformat": "standard-format --version || npm -g install standard-format",
+    "format": "standard-format -w",
     "thought": "thought run -a",
     "prethoughtcheck": "thought --version || npm -g install thought",
     "thoughtcheck": "thought check-engines",
@@ -28,6 +28,7 @@
     "preversion": "npm run thoughtcheck"
   },
   "dependencies": {
+    "deep-aplus": "^1.0.2",
     "q": "^1.4.1"
   },
   "standard": {
@@ -46,10 +47,5 @@
   },
   "peerDependencies": {
     "handlebars": "3||4"
-  },
-  "config": {
-    "ghooks": {
-      "pre-commit": "thoughtful precommit && standard --format"
-    }
   }
 }
