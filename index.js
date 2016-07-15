@@ -8,9 +8,7 @@
 'use strict'
 
 var Q = require('q')
-
-// Store for promises created during a template execution
-var promises = null
+var deep = require('deep-aplus')(Q.Promise)
 
 module.exports = promisedHandlebars
 /**
@@ -31,80 +29,59 @@ function promisedHandlebars (Handlebars, options) {
   options = options || {}
   options.placeholder = options.placeholder || '\u0001'
 
-  // one line from substack's quotemeta-package
-  var placeHolderRegexEscaped = String(options.placeholder).replace(/(\W)/g, '\\$1')
-  var regex = new RegExp(placeHolderRegexEscaped + '(\\d+)(>|&gt;)', 'g')
-
   var engine = Handlebars.create()
+  var markers = null
 
   // Wrap `registerHelper` with a custom function
-  engine.registerHelper = wrap(engine.registerHelper, function (fn, args) {
-    var keyOrObject = args[0]
-    var value = args[1]
-    // Wrap helpers provided in arguments
-    if (typeof keyOrObject === 'string') {
-      // Wrap single helper
-      fn.call(this, keyOrObject, wrap(value, helper))
-    } else {
-      // Key is an object. Wrap all helpers
-      for (var key in keyOrObject) {
-        var wrappedHelpers = {}
-        if (keyOrObject.hasOwnProperty(key)) {
-          wrappedHelpers[key] = wrap(keyOrObject[key], helper)
-        }
-        fn.call(this, wrappedHelpers)
-      }
+  engine.registerSyncHelper = engine.registerHelper
+  engine.registerHelper = function wrappedRegisterHelper (name, helper) {
+    if (typeof name === 'string' && typeof helper === 'function') {
+      // Called like "registerHelper(name, helper)"
+      engine.registerSyncHelper(name, wrap(helper, helperWrapper))
+    } else if (typeof name === 'object' && typeof helper === 'undefined') {
+      // Called like "registerHelper({ name: helper })
+      engine.registerSyncHelper(mapValues(name, function (helper) {
+        return wrap(helper, helperWrapper)
+      }))
     }
-  })
-
-  // Wrap the `compile` function, so that it wraps the compiled-template
-  // with `prepareAndResolve`
-  engine.compile = wrap(engine.compile, function (oldCompile, args) {
-    var fn = oldCompile.apply(engine, args)
-    return wrap(fn, prepareAndResolve)
-  // Wrap the compiled function
-  })
-
+  }
   // Re-register all built-in-helpers to ensure that their methods are wrapped
   engine.registerHelper(engine.helpers)
 
+  // Wrap the `compile` function, so that it wraps the compiled-template
+  // with `prepareAndResolveMarkers`
+  engine.compileSync = engine.compile
+  engine.compile = function wrappedCompile (input, options) {
+    var fn = engine.compileSync(input, options)
+    return function (context) {
+      return prepareAndResolveMarkers(fn, [context])
+    }
+  }
+
   /**
-   * Wrap a function (template or block-helper callback)
+   * template or block-helper callback)
    * such that
-   * 1) the `promises` variable is initialized with a new array
+   * 1) the `markers` variable is initialized with a new instance of
    * 2) a promise is returned instead of a string
    * 3) promise placeholder-values are replaced with the promise-results
    *    in the returned promise
    */
-  function prepareAndResolve (fn, args) {
-    if (promises) {
-      // "promises" array already exists: We are executing a partial or a synchronous block
-      // helper. That means we are called from somewhere within Handlebars. Handlebars does
-      // not like promises, so we act as normal as possible.
+  function prepareAndResolveMarkers (fn, args) {
+    if (markers) {
+      // The Markers-object has already been created for this cycle of the event loop:
+      // Just run the wraped function
       return fn.apply(this, args)
     }
     try {
-      // We are called from outside Handlebars (initial call). Initialize the `promise`
-      // variable (see above) with an empty array, so that helpers can store their promises
-      // during the template execution.
-      promises = []
-      // Execute template (helpers are getting called and store promises into the array
+      // No Markers yet. This is the initial call or some call that occured during a promise resolution
+      // Create markers, apply the function and resolve placeholders (i.e. promises) created during the
+      // function execution
+      markers = new Markers(engine, options.placeholder)
       var resultWithPlaceholders = fn.apply(this, args)
-
-      return Q.all([resultWithPlaceholders, Q.all(promises)]).spread(function (output, promiseResults) {
-        if (typeof output !== 'string') {
-          // Make sure that non-string values are not converted to a string.
-          return output
-        }
-        // Promises are fulfilled. Insert real values into the result.
-        return String(output).replace(regex, function (match, index, gt) {
-          // Check whether promise result must be escaped
-          return gt === '>' ? promiseResults[index] : engine.escapeExpression(promiseResults[index])
-        })
-      })
+      return markers.resolve(resultWithPlaceholders)
     } finally {
       // Reset promises for the next execution run
-      promises = null
+      markers = null
     }
   }
 
@@ -114,93 +91,34 @@ function promisedHandlebars (Handlebars, options) {
    * return promises (eventually)
    * and call `createMarker` afterwards
    */
-  function helper (fn, args) {
+  function helperWrapper (fn, args) {
     var _this = this
     var options = args[args.length - 1]
-    if (options.fn) {
-      options.fn = wrap(options.fn, prepareAndResolve)
-    }
-    if (options.inverse) {
-      options.inverse = wrap(options.inverse, prepareAndResolve)
-    }
     var hash = options.hash
 
-    // Handlebars calls helpers from template functions and appends the result to a string.
-    // In {{helper (inner-helper)}}, the inner-helper must return a promise
-    // They need a toString-method
-    return createMarker(function () {
-      // In `{{#each (inner-helper)}}abc{{/each}}`, if `inner-helper` returns a promise,
-      // `#each` must be called with the resolved value of the promise instead.
+    // "fn" and "inverse" return strings. They must be able to handle promises
+    // just as the compiled template and partials
+    options.fn = options.fn && wrap(options.fn, prepareAndResolveMarkers)
+    options.inverse = options.inverse && wrap(options.inverse, prepareAndResolveMarkers)
 
-      // Check whether there are promises at all
-      var promiseArgs = false
-      args.forEach(function (arg) {
-        promiseArgs = promiseArgs || Q.isPromiseAlike(arg)
-      })
-      if (hash) {
-        Object.keys(hash).forEach(function (key) {
-          promiseArgs = promiseArgs || Q.isPromiseAlike(hash[key])
-        })
-      }
-      if (!promiseArgs) {
-        return fn.apply(_this, args)
-      }
+    // If there are any promises in the helper args or in the hash,
+    // the evaluation of the helper cannot start before these promises are resolved.
+    var promisesInArgs = anyApplies(args, Q.isPromiseAlike)
+    var promisesInHash = anyApplies(values(hash), Q.isPromiseAlike)
 
-      // Condense promises from args and resolve them
-      var argsPromise = Q.all(args)
-      var hashPromise = {}
-      // Resolve hash
-      if (hash) {
-        var hashKeys = Object.keys(hash)
-        hashPromise = Q.all(hashKeys.map(function (key) {
-          return hash[key]
-        })).then(function (resolvedHashValues) {
-          var result = {}
-          for (var i = 0; i < hashKeys.length; i++) {
-            result[hashKeys[i]] = resolvedHashValues[i]
-          }
-          return result
-        })
-      }
-      // `Q.all` will always put us in a new event-loop-cycle, which means more overhead
-      // for instances of `promises`-array and possibly more overhead replacing placeholders
-      // in the helper result.
-      // That's why we only call it if necessary
-      return Q.all([argsPromise, hashPromise]).spread(function (resolvedArgs, resolvedHash) {
-        // We need a new `promises` array, because we are in a new event-loop-cycle now.
-        if (hash) {
-          resolvedArgs[resolvedArgs.length - 1].hash = resolvedHash
-        }
-        return prepareAndResolve(function () {
-          return fn.apply(_this, resolvedArgs)
-        })
+    if (!promisesInArgs && !promisesInHash) {
+      // No promises in hash or args. Act a normal as possible.
+      var result = fn.apply(_this, args)
+      return Q.isPromiseAlike(result) ? markers.asMarker(result) : result
+    }
+
+    var promise = deep(args).then(function (resolvedArgs) {
+      // We need a "markers", because we are in a new event-loop-cycle now.
+      return prepareAndResolveMarkers(function () {
+        return fn.apply(_this, resolvedArgs)
       })
     })
-  }
-
-  /**
-   * Apply a function with arguments.
-   * If a promise is returned by the function, push it into
-   * the promises-array and set its `.toString` method
-   * to
-   * * the placeholder, followed by
-   * * the index in the array
-   * * ">"
-   *
-   * @param {function} fn the original function
-   * @param {Array<*>} args the arguments passed to the original function
-   * @returns {*}
-   */
-  function createMarker (fn, args) {
-    var promiseOrValue = fn.apply(this, args)
-    if (!Q.isPromiseAlike(promiseOrValue)) {
-      return promiseOrValue
-    }
-    promises.push(promiseOrValue)
-    promiseOrValue.toString = function () {
-      return options.placeholder + (promises.length - 1) + '>'
-    }
-    return promiseOrValue
+    return markers.asMarker(promise)
   }
 
   return engine
@@ -209,14 +127,136 @@ function promisedHandlebars (Handlebars, options) {
 /**
  * Wrap a function with a wrapper function
  * @param {function} fn the original function
- * @param {function(function,array)} wrapper the wrapper-function
+ * @param {function(function,array)} wrapperFunction the wrapper-function
  *   receiving `fn` as first parameter and the arguments as second
  * @returns {function} a function that calls the wrapper with
  *   the original function and the arguments
  */
-function wrap (fn, wrapper) {
+function wrap (fn, wrapperFunction) {
   return function () {
-    var args = Array.prototype.slice.call(arguments)
-    return wrapper.call(this, fn, args)
+    return wrapperFunction.call(this, fn, toArray(arguments))
   }
+}
+
+/**
+ * A class the handles the creation and resolution of markers in the Handlebars output.
+ * Markes are used as placeholders in the output string for promises returned by helpers.
+ * They are replaced as soon as the promises are resolved.
+ * @param {Handlebars} engine a Handlebars instance (needed for the `escapeExpression` function)
+ * @param {string} prefix the prefix to identify placeholders (this prefix should never occur in the template).
+ * @constructor
+ */
+function Markers (engine, prefix) {
+  /**
+   * This array stores the promises created in the current event-loop cycle
+   * @type {Promise[]}
+   */
+  this.promiseStore = []
+  this.engine = engine
+  this.prefix = prefix
+  // one line from substack's quotemeta-package
+  var placeHolderRegexEscaped = String(this.prefix).replace(/(\W)/g, '\\$1')
+  this.regex = new RegExp(placeHolderRegexEscaped + '(\\d+)(>|&gt;)', 'g')
+}
+
+/**
+ * Add a promise the the store and return a placeholder.
+ * A placeholder consists of
+ * * The configured prefix (or \u0001), followed by
+ * * the index in the array
+ * * ">"
+
+ * @param {Promise} promise the promise
+ * @return {Promise} a new promise with a toString-method returning the placeholder
+ */
+Markers.prototype.asMarker = function asMarker (promise) {
+  // The placeholder: "prefix" for identification, index of promise in the store for retrieval, '>' for escaping
+  var placeholder = this.prefix + this.promiseStore.length + '>'
+  // Create a new promise, don't modify the input
+  var result = new Q.Promise(function (resolve, reject) {
+    promise.done(resolve, reject)
+  })
+  result.toString = function () {
+    return placeholder
+  }
+  this.promiseStore.push(promise)
+  return result
+}
+
+/**
+ * Replace the placeholder found in a string by the resolved promise values.
+ * The input may be Promise, in which case it will be resolved first.
+ * Non-string values are returned directly since they cannot contain placeholders.
+ * String values are search for placeholders, which are then replaced by their resolved values.
+ * If the '>' part of the placeholder has been escaped (i.e. as '&gt;') the resolved value
+ * will be escaped as well.
+ *
+ * @param {Promise<any>} input the string with placeholders
+ * @return {Promise<string>} a promise for the string with resolved placeholders
+ */
+Markers.prototype.resolve = function resolve (input) {
+  var self = this
+  return Q(input).then(function (output) {
+    if (typeof output !== 'string') {
+      // Make sure that non-string values (e.g. numbers) are not converted to a string.
+      return output
+    }
+    return Q.all(self.promiseStore)
+      .then(function (promiseResults) {
+        // Promises are fulfilled. Insert real values into the result.
+        return String(output).replace(self.regex, function (match, index, gt) {
+          // Check whether promise result must be escaped
+          var resolvedValue = promiseResults[index]
+          return gt === '>' ? resolvedValue : self.engine.escapeExpression(resolvedValue)
+        })
+      })
+  })
+}
+
+/**
+ * Apply the mapFn to all values of the object and return a new object with the applied values
+ * @param obj the input object
+ * @param {function(any, string, object): any} mapFn the map function (receives the value, the key and the whole object as parameter)
+ * @returns {object} an object with the same keys as the input object
+ */
+function mapValues (obj, mapFn) {
+  return Object.keys(obj).reduce(function (result, key) {
+    result[key] = mapFn(obj[key], key, obj)
+    return result
+  }, {})
+}
+
+/**
+ * Return the values of the object
+ * @param {object} obj an object
+ * @returns {Array} the values of the object
+ */
+function values (obj) {
+  return Object.keys(obj).map(function (key) {
+    return obj[key]
+  })
+}
+
+/**
+ * Check if the predicate is true for any element of the array
+ * @param {Array} array
+ * @param {function(any):boolean} predicate
+ * @returns {boolean}
+ */
+function anyApplies (array, predicate) {
+  for (var i = 0; i < array.length; i++) {
+    if (predicate(array[i])) {
+      return true
+    }
+  }
+  return false
+}
+
+/**
+ * Convert arrayLike-objects (like 'arguments') to an array
+ * @param arrayLike
+ * @returns {Array.<T>}
+ */
+function toArray (arrayLike) {
+  return Array.prototype.slice.call(arrayLike)
 }
