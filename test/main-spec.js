@@ -54,7 +54,7 @@ Handlebars.registerHelper({
         return 'bi(' + result + ')'
       })
   },
-  'block-context': function(options) {
+  'block-context': function (options) {
     return Q(options.fn(this))
   },
   'insert-twice': function (options) {
@@ -175,7 +175,7 @@ describe('promised-handlebars:', function () {
   })
   it('async helpers should work inside an async block-helper that passes (this) to the block-function', function (done) {
     var template = Handlebars.compile(fixture('async-block-helper-with-nested-async-helper.hbs'))
-    return expect(template({a:'b'}))
+    return expect(template({a: 'b'}))
       .to.eventually.equal('h(a)')
       .notify(done)
   })

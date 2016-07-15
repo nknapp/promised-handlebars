@@ -211,11 +211,11 @@ Markers.prototype.resolve = function resolve (input) {
          */
         function replacePlaceholdersRecursivelyIn (string) {
           return string.replace(self.regex, function (match, index, gt) {
-          // Check whether promise result must be escaped
-          var resolvedValue = promiseResults[index]
+            // Check whether promise result must be escaped
+            var resolvedValue = promiseResults[index]
             var result = gt === '>' ? resolvedValue : self.engine.escapeExpression(resolvedValue)
             return replacePlaceholdersRecursivelyIn(result)
-        })
+          })
         }
 
         // Promises are fulfilled. Insert real values into the result.
