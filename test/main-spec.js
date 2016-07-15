@@ -54,6 +54,9 @@ Handlebars.registerHelper({
         return 'bi(' + result + ')'
       })
   },
+  'block-context': function(options) {
+    return Q(options.fn(this))
+  },
   'insert-twice': function (options) {
     return options.fn(this) + ',' + options.fn(this)
   },
@@ -168,6 +171,12 @@ describe('promised-handlebars:', function () {
     var template = Handlebars.compile(fixture('block-helper-manipulate.hbs'))
     return expect(template({arr: [{a: 'aa'}, {a: 'bb'}]}))
       .to.eventually.equal('abc')
+      .notify(done)
+  })
+  it('async helpers should work inside an async block-helper that passes (this) to the block-function', function (done) {
+    var template = Handlebars.compile(fixture('async-block-helper-with-nested-async-helper.hbs'))
+    return expect(template({a:'b'}))
+      .to.eventually.equal('h(a)')
       .notify(done)
   })
 })

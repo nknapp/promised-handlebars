@@ -59,9 +59,9 @@ function promisedHandlebars (Handlebars, options) {
   }
 
   /**
-   * template or block-helper callback)
-   * such that
-   * 1) the `markers` variable is initialized with a new instance of
+   * Wrapper for templates, partials and block-helper callbacks
+   *
+   * 1) the `markers` variable is initialized with a new instance of Markers
    * 2) a promise is returned instead of a string
    * 3) promise placeholder-values are replaced with the promise-results
    *    in the returned promise
@@ -86,10 +86,10 @@ function promisedHandlebars (Handlebars, options) {
   }
 
   /**
-   * Call the helper and modify parameters and the result
-   * Wrap `options.fn` and `options.inverse` to
-   * return promises (eventually)
-   * and call `createMarker` afterwards
+   * Wrapper for helper methods:
+   * * Call the helper after resolving parameters (if any promises are passed)
+   * * Wrap `options.fn` and `options.inverse` to return promises (if needed)
+   * * Convert helper results markers if they are promises.
    */
   function helperWrapper (fn, args) {
     var _this = this
@@ -113,7 +113,7 @@ function promisedHandlebars (Handlebars, options) {
     }
 
     var promise = deep(args).then(function (resolvedArgs) {
-      // We need a "markers", because we are in a new event-loop-cycle now.
+      // We need "markers", because we are in a new event-loop-cycle now.
       return prepareAndResolveMarkers(function () {
         return fn.apply(_this, resolvedArgs)
       })
@@ -203,12 +203,23 @@ Markers.prototype.resolve = function resolve (input) {
     }
     return Q.all(self.promiseStore)
       .then(function (promiseResults) {
-        // Promises are fulfilled. Insert real values into the result.
-        return String(output).replace(self.regex, function (match, index, gt) {
+        /**
+         * Replace placeholders in a string. Looks for placeholders
+         * in the replacement string recursively.
+         * @param {string} string
+         * @returns {string}
+         */
+        function replacePlaceholdersRecursivelyIn (string) {
+          return string.replace(self.regex, function (match, index, gt) {
           // Check whether promise result must be escaped
           var resolvedValue = promiseResults[index]
-          return gt === '>' ? resolvedValue : self.engine.escapeExpression(resolvedValue)
+            var result = gt === '>' ? resolvedValue : self.engine.escapeExpression(resolvedValue)
+            return replacePlaceholdersRecursivelyIn(result)
         })
+        }
+
+        // Promises are fulfilled. Insert real values into the result.
+        return replacePlaceholdersRecursivelyIn(String(output))
       })
   })
 }
