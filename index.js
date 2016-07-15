@@ -257,6 +257,6 @@ function anyApplies (array, predicate) {
  * @param arrayLike
  * @returns {Array.<T>}
  */
-function toArray(arrayLike) {
+function toArray (arrayLike) {
   return Array.prototype.slice.call(arrayLike)
 }
