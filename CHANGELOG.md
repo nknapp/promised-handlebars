@@ -1,6 +1,13 @@
 # Change Log
 
 <a name="current-release"></a>
+# Version 1.0.4 (Sat, 16 Jul 2016 11:23:44 GMT)
+
+* [975b7e7](https://github.com/nknapp/promised-handlebars/commit/975b7e7) Use "thoughtful-release" for version upgrades (#11) - Nils Knappmeier
+* [7c33c38](https://github.com/nknapp/promised-handlebars/commit/7c33c38) Add "files" and "keywords" to package.json (#10) - Nils Knappmeier
+* [a746477](https://github.com/nknapp/promised-handlebars/commit/a746477) Markers were not always resolved when block-helpers returned promise (#9) - Nils Knappmeier
+* [f1dc2c9](https://github.com/nknapp/promised-handlebars/commit/f1dc2c9) Refactor for better readability (#8) - Nils Knappmeier
+
 # Version 1.0.3 (Sun, 10 Jan 2016 22:13:28 GMT)
 
 * [00c537e](https://github.com/nknapp/promised-handlebars/commit/00c537e) Run code-style hook and Thoughtful prior to commit - Nils Knappmeier
