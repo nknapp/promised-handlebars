@@ -22,7 +22,9 @@ module.exports = promisedHandlebars
  * @param {Handlebars} Handlebars the Handlebars engine to wrap
  * @param {object} options optional parameters
  * @param {string=} options.placeholder the placeholder to be used in the template-output before inserting
- *   the promised results
+ *   the promised results. This placeholder may not occur in the template or any partial. Neither
+ *   my any helper generate the placeholder in to the result. Errors or wrong replacement will
+ *   happen otherwise.
  * @returns {Handlebars} a modified Handlebars object
  */
 function promisedHandlebars (Handlebars, options) {
