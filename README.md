@@ -1,35 +1,19 @@
-<!-- part name='templates/README.md' -->
 # promised-handlebars 
 
-<!-- part name='partials/badges.md' -->
-<!-- part name='partials/badge/npm.md' -->
 [![NPM version](https://badge.fury.io/js/promised-handlebars.svg)](http://badge.fury.io/js/promised-handlebars)
- <!-- /part -->
-<!-- part name='partials/badge/travis.md' -->
 [![Travis Build Status](https://travis-ci.org/nknapp/promised-handlebars.svg?branch=master)](https://travis-ci.org/nknapp/promised-handlebars)
-<!-- /part -->
-<!-- part name='partials/badge/appveyor.md' -->
-<!-- /part -->
-<!-- part name='partials/badge/coveralls.md' -->
 [![Coverage Status](https://img.shields.io/coveralls/nknapp/promised-handlebars.svg)](https://coveralls.io/r/nknapp/promised-handlebars)
 
-<!-- /part -->
-<!-- /part -->
 
 > Wrapper for Handlebars that allows helpers returning promises
 
-<!-- part name='partials/overview.md' -->
-<!-- /part -->
 
-<!-- part name='partials/installation.md' -->
 # Installation
 
 ```
 npm install promised-handlebars
 ```
-<!-- /part -->
 
-<!-- part name='partials/usage.md' -->
 ## Usage
 
 `promised-handlebars` creates a new a Handlebars-instance with wrapped
@@ -109,12 +93,8 @@ This will generate the following output:
 
 
 
-<!-- /part -->
 
-<!-- part name='partials/api.md' -->
-<!-- /part -->
 
-<!-- part name='partials/howitworks.md' -->
 ## How it works
 
 Handlebars allows you to register helper functions and that can be called 
@@ -258,21 +238,16 @@ See [open issues](https://github.com/nknapp/promised-handlebars/issues) for poss
   uuids to mark insertion-points for promise-results.
 
   
-<!-- /part -->
 
-<!-- part name='partials/license.md' -->
 ## License
 
 `promised-handlebars` is published under the MIT-license. 
 See [LICENSE.md](LICENSE.md) for details.
-<!-- /part -->
 
-<!-- part name='partials/changelog.md' -->
 ## Release-Notes
  
 For release notes, see [CHANGELOG.md](CHANGELOG.md)
- <!-- /part -->
-
+ 
 ## Contributing guidelines
 
-See [CONTRIBUTING.md](CONTRIBUTING.md).<!-- /part -->
+See [CONTRIBUTING.md](CONTRIBUTING.md).
