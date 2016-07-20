@@ -33,7 +33,6 @@ Handlebars.registerHelper({
   'stringifyRoot': function (options) {
     return JSON.stringify(options.data.root)
   },
-
   'helper-hash': function (options) {
     var hashString = Object.keys(options.hash).sort().map(function (key) {
       return key + '=' + options.hash[key]
