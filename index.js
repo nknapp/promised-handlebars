@@ -35,30 +35,29 @@ function promisedHandlebars (Handlebars, options) {
   var markers = null
 
   // Wrap `registerHelper` with a custom function
-  engine.registerSyncHelper = engine.registerHelper
-  engine.registerHelper = function wrappedRegisterHelper (name, helper) {
-    if (typeof name === 'string' && typeof helper === 'function') {
+  engine.registerHelper = wrap(engine.registerHelper, function registerHelperWrapper (oldRegisterHelper, args) {
+    if (typeof args[0] === 'string' && typeof args[1] === 'function') {
+      var name = args[0]
+      var helper = args[1]
       // Called like "registerHelper(name, helper)"
-      engine.registerSyncHelper(name, wrap(helper, helperWrapper))
-    } else if (typeof name === 'object' && typeof helper === 'undefined') {
+      oldRegisterHelper.call(engine, name, wrap(helper, helperWrapper))
+    } else if (args.length === 1 && typeof args[0] === 'object') {
       // Called like "registerHelper({ name: helper })
-      engine.registerSyncHelper(mapValues(name, function (helper) {
+      oldRegisterHelper.call(engine, mapValues(args[0], function (helper) {
         return wrap(helper, helperWrapper)
       }))
     }
-  }
+  })
   // Re-register all built-in-helpers to ensure that their methods are wrapped
   engine.registerHelper(engine.helpers)
 
   // Wrap the `compile` function, so that it wraps the compiled-template
   // with `prepareAndResolveMarkers`
-  engine.compileSync = engine.compile
-  engine.compile = function wrappedCompile (input, options) {
-    var fn = engine.compileSync(input, options)
-    return function (context) {
-      return prepareAndResolveMarkers(fn, [context])
-    }
-  }
+  engine.compile = wrap(engine.compile, function compileWrapper (oldCompile, args) {
+    var fn = oldCompile.apply(engine, args)
+    return wrap(fn, prepareAndResolveMarkers)
+    // Wrap the compiled function
+  })
 
   /**
    * Wrapper for templates, partials and block-helper callbacks
