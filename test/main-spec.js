@@ -31,7 +31,7 @@ Handlebars.registerHelper({
     })
   },
   'stringifyRoot': function (options) {
-    return JSON.stringify(options.data.root);
+    return JSON.stringify(options.data.root)
   },
 
   'helper-hash': function (options) {
@@ -154,7 +154,6 @@ describe('promised-handlebars:', function () {
       .to.eventually.equal('{"a":3}')
       .notify(done)
   })
-
 
   it('helpers passed into partials as parameters like {{>partial (helper 123)}} should be resolved within the helper call', function (done) {
     var template = Handlebars.compile(fixture('helper-as-parameter-for-partial.hbs'))

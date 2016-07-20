@@ -56,7 +56,7 @@ function promisedHandlebars (Handlebars, options) {
   engine.compile = wrap(engine.compile, function compileWrapper (oldCompile, args) {
     var fn = oldCompile.apply(engine, args)
     return wrap(fn, prepareAndResolveMarkers)
-    // Wrap the compiled function
+  // Wrap the compiled function
   })
 
   /**
