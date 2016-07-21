@@ -1,17 +1,25 @@
 sudo: false
-language: "node_js"
+language: node_js
 node_js:
-  - "0.10"
-  - "0.12"
-  - "4"
-  - "5"
-  - "iojs"
+- '0.10'
+- '0.12'
+- '4'
+- '5'
+- iojs
 before_script:
-  - npm install standard
-  - standard
+- npm install standard
+- standard
 script:
-  - npm install istanbul
-  - istanbul cover ./node_modules/.bin/_mocha --report lcovonly
+- npm install istanbul
+- istanbul cover ./node_modules/.bin/_mocha --report lcovonly
 after_script:
-  - npm install coveralls
-  - cat ./coverage/lcov.info | coveralls
+- npm install coveralls
+- cat ./coverage/lcov.info | coveralls
+deploy:
+  provider: npm
+  email: npm@knappi.org
+  api_key:
+    secure: oFBJitqoN/Qk0jFC4HTxs+W+fqsIRGnPLApJ92KBym/3wFHtHVGYy6nNw7S4x/rurO3CsSaejrn+ZKzXaFHOsUilWm5fQJy+UnngbE0JJLJBzJ59ZfAn2Ite+8rXUrfUmyQ2iIqV/ZbZK/zClFuKv/KWN4UfXluKZmxTx+Z/X7JuGG4dLgNMTPpoNAp3JGhHassZfPKlGNz6CQBc+2sAOPmuHSOwaDymW9YxCnqiH6E280oE87oIHyJslep4dbuiwOEMkpeAGAqbrzbAaW7cT6aylU/ebtLk6GDvbv2ELCCLvTg9N2zXABSdBTTohVeX7ank67D9ZCpocRhR/5o6S4AdoVKwpx5+592Ij2hk0L9YmrNGtYjVZ9/ft9I7eaeFz6bMD+x58QMgcRC49hyl+W/eKWjER4kD0lt7/bvbMTpfdz21jj4ffRCaFWyaeA+BFn1hRqiUfQca4ZCNBTuu3O7uI2K0OTlpyUG73uDEcp52wC+1vFvl5Oq0S5VHaCwXNIClc8xCYQYTsj04hzewtdLmMVDaDVKtDMoGOtiDlhJ1YNGTVfolKT9p1P/jZRFGwANbVaGEUPvg7QITbvEbrsglZu92JPehQ27xn4pcfXq77ISCrB2lcs/m+JQBsK043vFoNy2PBNnbn4SrnmS1Xq7IenxV8NyCcKzUWAO9PpM=
+  on:
+    tags: true
+    repo: nknapp/promised-handlebars
