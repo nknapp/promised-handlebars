@@ -30,6 +30,9 @@ Handlebars.registerHelper({
       return 'h(' + value + ')'
     })
   },
+  'stringifyRoot': function (options) {
+    return JSON.stringify(options.data.root)
+  },
   'helper-hash': function (options) {
     var hashString = Object.keys(options.hash).sort().map(function (key) {
       return key + '=' + options.hash[key]
@@ -83,6 +86,7 @@ Handlebars.registerHelper('trim', function (options) {
 Handlebars.registerPartial('a', "{{helper '10' 'partialA'}}")
 Handlebars.registerPartial('b', "{{helper '10' 'partialB'}}")
 Handlebars.registerPartial('identity', 'id({{.}})')
+Handlebars.registerPartial('call', '{{{stringifyRoot}}}')
 
 describe('promised-handlebars:', function () {
   it('should return a promise for the ouput with helpers resolved', function (done) {
@@ -138,6 +142,15 @@ describe('promised-handlebars:', function () {
     var template = Handlebars.compile(fixture('helper-as-parameter.hbs'))
     return expect(template({}))
       .to.eventually.equal('index.js (1)\nondex.js (0)')
+      .notify(done)
+  })
+
+  it('partials calls should maintain the correct `root`-variable when a parameter is passed', function (done) {
+    var template = Handlebars.compile('{{>call a}}')
+    return expect(template({
+      a: 3
+    }))
+      .to.eventually.equal('{"a":3}')
       .notify(done)
   })
 
