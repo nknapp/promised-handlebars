@@ -1,6 +1,15 @@
 # Change Log
 
 <a name="current-release"></a>
+# Version 1.0.6 (Thu, 21 Jul 2016 20:30:25 GMT)
+
+* [022797e](https://github.com/nknapp/promised-handlebars/commit/022797e) Revert to pre-refactoring wrapper of the `compile`-function and `regi… (#15) - Nils Knappmeier
+
+# Version 1.0.5 ...
+
+* ... is equal to Version 1.0.3
+
+
 # Version 1.0.4 (Sat, 16 Jul 2016 11:23:44 GMT)
 
 * [975b7e7](https://github.com/nknapp/promised-handlebars/commit/975b7e7) Use "thoughtful-release" for version upgrades (#11) - Nils Knappmeier
