@@ -1,6 +1,9 @@
+// -----<snip>-------
 var promisedHandlebars = require('../')
 var Q = require('q')
+// Pass Q.Promise to promisedHandlebars in the options.Promise
 var Handlebars = promisedHandlebars(require('handlebars'), { Promise: Q.Promise })
+// -----</snip>-------
 
 // Register a helper that returns a promise
 // Helpers do not have to return a promise of the sane

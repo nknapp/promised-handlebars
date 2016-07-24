@@ -24,16 +24,17 @@ As a side-effect (in order to allow asynchronous template execution)
 the compiled template-function itself always returns a promise instead
 of a string.
 
-### Simple helpers 
+### Simple helpers
 
 Simple helpers can just return promises.
 
 ```js
 var promisedHandlebars = require('promised-handlebars')
 var Q = require('q')
-var Handlebars = promisedHandlebars(require('handlebars'))
+var Handlebars = promisedHandlebars(require('handlebars'), { Promise: Q.Promise })
 
 // Register a helper that returns a promise
+// Helpers do not have to return a promise of the sane
 Handlebars.registerHelper('helper', function (value) {
   return Q.delay(100).then(function () {
     return value
@@ -52,6 +53,7 @@ template({
 This will generate the following output: 
 `123abc456xyz`
 
+
 ### Block helpers
 
 If a block-helper, calls the helper-contents (`options.fn`) and the else-block 
@@ -64,7 +66,7 @@ block-helpers that do some asynchronous work before evaluating the block content
 
 ```js
 var promisedHandlebars = require('promised-handlebars')
-var Handlebars = promisedHandlebars(require('handlebars'))
+var Handlebars = promisedHandlebars(require('handlebars'), { Promise: require('q').Promise })
 var httpGet = require('get-promise')
 
 // A block helper (retrieve weather for a city from openweathermap.org)
@@ -91,8 +93,60 @@ template({
 This will generate the following output: 
 `nknapp: Nils Knappmeier`
 
+### Usage with other promise libraries
 
+Starting with `v2.x`, `promised-handlebars`, no longer depends on
+[`Q`](https://github.com/kriskowal/q). Instead, you will need to ensure
+that a [`Promises/A+`](https://promisesaplus.com/) implementation is provided.
+You can do this by passing the promise implementation of your choice in the options.
 
+```js
+var promisedHandlebars = require('promised-handlebars')
+var Q = require('q')
+// Pass Q.Promise to promisedHandlebars in the options.Promise
+var Handlebars = promisedHandlebars(require('handlebars'), { Promise: Q.Promise })
+```
+
+`promised-handlebars` will default to using the global Promise object, so if your environment provides it (e.g if you are using `node@^4.x` or a [modern web browser](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise#Browser_compatibility))
+or if you are using a promise library as `global.Promise`, you will not need to pass the Promise constructor
+in the options.
+
+```js
+global.Promise = require('bluebird')
+var promisedHandlebars = require('promised-handlebars')
+// By default promisedHandlebars uses global.Promise,
+var Handlebars = promisedHandlebars(require('handlebars'))
+```
+
+#### Mixed Promises/A+
+
+When writing helper functions that return promises, it is not necessary to return the same sort of promises that you used when invoking `promisedHelper()`.
+
+```js
+var promisedHandlebars = require('promised-handlebars')
+var Handlebars = promisedHandlebars(require('handlebars'))
+
+var Q = require('q')
+
+// Register a helper that returns a promise
+// Helpers can use any A+ promises type
+Handlebars.registerHelper('helper', function (value) {
+  return Q.delay(100).then(function () {
+    return value
+  })
+})
+
+var template = Handlebars.compile('ABC{{helper a}}XYZ{{helper b}}')
+
+// The whole compiled function returns a promise as well
+template({
+  a: '123',
+  b: '456'
+}).then(console.log)
+```
+
+This works and generates
+`ABC123XYZ456`
 
 
 ## How it works
@@ -104,8 +158,8 @@ can be called to render a JSON.
 This module wraps the compiled template function and helpers register with 
 `registerHelper` in order to do the following:
 
-* In case the helper returns an object that is `Q.isPromiseAlike`, the 
-  value is inserted into a temporary `promises-array`.
+* In case the helper returns an object that is `isPromiseAlike` (i.e. it is a non-`null` object with a 
+  function method `then()`), the value is inserted into a temporary `promises-array`.
 
 * The `.toString` method of the helper-return value is modified to return
   a concatenated string of
@@ -173,7 +227,7 @@ promise for a boolean value:
 ```js
 var promisedHandlebars = require('promised-handlebars')
 var Q = require('q')
-var Handlebars = promisedHandlebars(require('handlebars'))
+var Handlebars = promisedHandlebars(require('handlebars'), { Promise: Q.Promise })
 
 Handlebars.registerHelper({
   // Returns a promise for `true`

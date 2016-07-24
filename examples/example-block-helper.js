@@ -1,5 +1,5 @@
 var promisedHandlebars = require('../')
-var Handlebars = promisedHandlebars(require('handlebars'))
+var Handlebars = promisedHandlebars(require('handlebars'), { Promise: require('q').Promise })
 var httpGet = require('get-promise')
 
 // A block helper (retrieve weather for a city from openweathermap.org)

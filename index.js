@@ -7,10 +7,10 @@
 
 'use strict'
 
-var Q = require('q')
-var deep = require('deep-aplus')(Q.Promise)
+var deepAplus = require('deep-aplus')
 
 module.exports = promisedHandlebars
+
 /**
  * Returns a new Handlebars instance that
  * * allows helpers to return promises
@@ -20,17 +20,24 @@ module.exports = promisedHandlebars
  *   are resolved.
  *
  * @param {Handlebars} Handlebars the Handlebars engine to wrap
- * @param {object} options optional parameters
+ * @param {object=} options optional parameters
  * @param {string=} options.placeholder the placeholder to be used in the template-output before inserting
  *   the promised results. This placeholder may not occur in the template or any partial. Neither
  *   my any helper generate the placeholder in to the result. Errors or wrong replacement will
  *   happen otherwise.
+ * @param {Promise=} options.Promise the promise implementation to use. Defaults to global.Promise
  * @returns {Handlebars} a modified Handlebars object
  */
 function promisedHandlebars (Handlebars, options) {
   options = options || {}
   options.placeholder = options.placeholder || '\u0001'
 
+  var Promise = options.Promise || global.Promise
+  if (!Promise) {
+    throw new Error('promised-handlebars: Promise is undefined. Please specify options.Promise or set global.Promise.')
+  }
+
+  var deep = deepAplus(Promise)
   var engine = Handlebars.create()
   var markers = null
 
@@ -104,13 +111,13 @@ function promisedHandlebars (Handlebars, options) {
 
     // If there are any promises in the helper args or in the hash,
     // the evaluation of the helper cannot start before these promises are resolved.
-    var promisesInArgs = anyApplies(args, Q.isPromiseAlike)
-    var promisesInHash = anyApplies(values(hash), Q.isPromiseAlike)
+    var promisesInArgs = anyApplies(args, isPromiseAlike)
+    var promisesInHash = anyApplies(values(hash), isPromiseAlike)
 
     if (!promisesInArgs && !promisesInHash) {
       // No promises in hash or args. Act a normal as possible.
       var result = fn.apply(_this, args)
-      return Q.isPromiseAlike(result) ? markers.asMarker(result) : result
+      return isPromiseAlike(result) ? markers.asMarker(result) : result
     }
 
     var promise = deep(args).then(function (resolvedArgs) {
@@ -121,6 +128,8 @@ function promisedHandlebars (Handlebars, options) {
     })
     return markers.asMarker(promise)
   }
+
+  engine.Promise = Promise
 
   return engine
 }
@@ -174,9 +183,7 @@ Markers.prototype.asMarker = function asMarker (promise) {
   // The placeholder: "prefix" for identification, index of promise in the store for retrieval, '>' for escaping
   var placeholder = this.prefix + this.promiseStore.length + '>'
   // Create a new promise, don't modify the input
-  var result = new Q.Promise(function (resolve, reject) {
-    promise.done(resolve, reject)
-  })
+  var result = this.engine.Promise.resolve(promise)
   result.toString = function () {
     return placeholder
   }
@@ -197,12 +204,12 @@ Markers.prototype.asMarker = function asMarker (promise) {
  */
 Markers.prototype.resolve = function resolve (input) {
   var self = this
-  return Q(input).then(function (output) {
+  return this.engine.Promise.resolve(input).then(function (output) {
     if (typeof output !== 'string') {
       // Make sure that non-string values (e.g. numbers) are not converted to a string.
       return output
     }
-    return Q.all(self.promiseStore)
+    return self.engine.Promise.all(self.promiseStore)
       .then(function (promiseResults) {
         /**
          * Replace placeholders in a string. Looks for placeholders
@@ -271,4 +278,14 @@ function anyApplies (array, predicate) {
  */
 function toArray (arrayLike) {
   return Array.prototype.slice.call(arrayLike)
+}
+
+/**
+ * Test an object to see if it is a Promise
+ * @param   {Object}  obj The object to test
+ * @returns {Boolean}     Whether it's a PromiseA like object
+ */
+function isPromiseAlike (obj) {
+  if (obj == null) return false
+  return (typeof obj === 'object') && (typeof obj.then === 'function')
 }
