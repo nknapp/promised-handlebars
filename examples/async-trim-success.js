@@ -1,6 +1,6 @@
 var promisedHandlebars = require('../')
 var Q = require('q')
-var Handlebars = promisedHandlebars(require('handlebars'))
+var Handlebars = promisedHandlebars(require('handlebars'), { Promise: Q.Promise })
 
 Handlebars.registerHelper({
   // Returns a promise for `true`

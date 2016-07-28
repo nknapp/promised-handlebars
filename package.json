@@ -28,8 +28,7 @@
     "preversion": "npm run thoughtcheck"
   },
   "dependencies": {
-    "deep-aplus": "^1.0.2",
-    "q": "^1.4.1"
+    "deep-aplus": "^1.0.2"
   },
   "standard": {
     "ignore": [
@@ -47,8 +46,11 @@
     "index.js"
   ],
   "devDependencies": {
+    "q": "^1.4.1",
+    "bluebird": "^3.4.1",
     "chai": "^3.2.0",
     "chai-as-promised": "^5.1.0",
+    "es6-promise": "^3.2.1",
     "get-promise": "^1.4.0",
     "handlebars": "^3||^4",
     "mocha": "^2.2.5",

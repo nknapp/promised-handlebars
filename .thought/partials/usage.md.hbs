@@ -8,14 +8,15 @@ As a side-effect (in order to allow asynchronous template execution)
 the compiled template-function itself always returns a promise instead
 of a string.
 
-### Simple helpers 
+### Simple helpers
 
 Simple helpers can just return promises.
 
 {{{example 'examples/example.js'}}}
 
 This will generate the following output: 
-{{{exec 'node example.js' cwd='examples/' lang='inline' }}}
+{{{exec 'node example.js' cwd='examples/' lang='inline'}}}
+
 
 ### Block helpers
 
@@ -32,5 +33,26 @@ block-helpers that do some asynchronous work before evaluating the block content
 This will generate the following output: 
 {{{exec 'node example-block-helper.js' cwd='examples/' lang='inline'}}}
 
+### Usage with other promise libraries
 
+Starting with `v2.x`, `{{{package.name}}}`, no longer depends on
+[`Q`](https://github.com/kriskowal/q). Instead, you will need to ensure
+that a [`Promises/A+`](https://promisesaplus.com/) implementation is provided.
+You can do this by passing the promise implementation of your choice in the options.
 
+{{{example 'examples/setup-with-q-promises.js' snippet=true}}}
+
+`{{{package.name}}}` will default to using the global Promise object, so if your environment provides it (e.g if you are using `node@^4.x` or a [modern web browser](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise#Browser_compatibility))
+or if you are using a promise library as `global.Promise`, you will not need to pass the Promise constructor
+in the options.
+
+{{{example 'examples/setup-with-global-bluebird.js' snippet=true}}}
+
+#### Mixed Promises/A+
+
+When writing helper functions that return promises, it is not necessary to return the same sort of promises that you used when invoking `promisedHelper()`.
+
+{{{example 'examples/example-mixed-promises.js'}}}
+
+This works and generates
+{{{exec 'node example-mixed-promises.js' cwd='examples/' lang='inline'}}}

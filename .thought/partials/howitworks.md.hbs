@@ -7,8 +7,8 @@ can be called to render a JSON.
 This module wraps the compiled template function and helpers register with 
 `registerHelper` in order to do the following:
 
-* In case the helper returns an object that is `Q.isPromiseAlike`, the 
-  value is inserted into a temporary `promises-array`.
+* In case the helper returns an object that is `isPromiseAlike` (i.e. it is a non-`null` object with a 
+  function method `then()`), the value is inserted into a temporary `promises-array`.
 
 * The `.toString` method of the helper-return value is modified to return
   a concatenated string of
