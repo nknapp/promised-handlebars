@@ -1,6 +1,18 @@
 # Change Log
 
 <a name="current-release"></a>
+# Version 2.0.0 (Thu, 28 Jul 2016 23:39:58 GMT)
+
+Version 2.0.0 allows to configure the used Promise-library. The default is to the `global.Promise` this is considered a breaking change,
+because the template now does not return a `Q.Promise` by default. If you want to use specific functions of `Q` on the template-result, 
+you have to change your code to `var result = Q(template(input))` pass the `Q`-Promise constructor as `options.Promise`. 
+
+The primary goal of this change was to allow `bluebird` to be used instead of `Q`, which is considered to increase performance.
+
+* [baac5d5](https://github.com/nknapp/promised-handlebars/commit/baac5d5) Update comment in example-block-helper to match github API call - Joshua Estrin Skrzypek
+* [fe5b4a2](https://github.com/nknapp/promised-handlebars/commit/fe5b4a2) Breaking change: Allow any Promises/A+ implementation - Joshua Estrin Skrzypek
+
+
 # Version 1.0.6 (Thu, 21 Jul 2016 20:30:25 GMT)
 
 * [022797e](https://github.com/nknapp/promised-handlebars/commit/022797e) Revert to pre-refactoring wrapper of the `compile`-function and `regi… (#15) - Nils Knappmeier
