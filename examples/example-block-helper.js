@@ -2,8 +2,8 @@ var promisedHandlebars = require('../')
 var Handlebars = promisedHandlebars(require('handlebars'), { Promise: require('q').Promise })
 var httpGet = require('get-promise')
 
-// A block helper (retrieve weather for a city from openweathermap.org)
-// Execute the helper-block with the weather result
+// A block helper (retrieve github.com user data for a given username)
+// Execute the helper-block with the user data when it resolves
 Handlebars.registerHelper('github-user', function (value, options) {
   var url = 'https://api.github.com/users/' + value
   return httpGet(url, { headers: { 'User-Agent': 'Node' } })
