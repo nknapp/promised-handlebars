@@ -1,6 +1,6 @@
 {
   "name": "promised-handlebars",
-  "version": "1.0.6",
+  "version": "2.0.0",
   "description": "Wrapper for Handlebars that allows helpers returning promises",
   "repository": {
     "type": "git",
