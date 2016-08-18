@@ -1,5 +1,5 @@
 {
-  "name": "promised-handlebars",
+  "name": "@terminus/promised-handlebars2",
   "version": "2.0.0",
   "description": "Wrapper for Handlebars that allows helpers returning promises",
   "repository": {
