@@ -19,7 +19,7 @@ var expect = chai.expect
 
 module.exports = runDefaultSuite
 
-function runDefaultSuite () {
+function runDefaultSuite() {
   before(function () {
     // Handlebars = this.Handlebars
     setupHandlebars(this.Handlebars)
@@ -28,35 +28,35 @@ function runDefaultSuite () {
   // Default test suite
   it('should return a promise for the ouput with helpers resolved', function (done) {
     var template = this.Handlebars.compile(fixture('simple-helper.hbs'))
-    return expect(template({a: 'abc', b: 'xyz'}))
+    return expect(template({ a: 'abc', b: 'xyz' }))
       .to.eventually.equal('123 h(abc) 456 h(xyz)')
       .notify(done)
   })
 
   it('should work with block helpers that call `fn` while resolving a promise', function (done) {
     var template = this.Handlebars.compile(fixture('block-helper.hbs'))
-    return expect(template({a: 'abc', b: 'xyz'}))
+    return expect(template({ a: 'abc', b: 'xyz' }))
       .to.eventually.equal('123 b(abc) 456\n123 bi(cba) 456')
       .notify(done)
   })
 
   it('should work with a helper being called from within a block helpers', function (done) {
     var template = this.Handlebars.compile(fixture('nested-helpers.hbs'))
-    return expect(template({a: 'abc', b: 'xyz'}))
+    return expect(template({ a: 'abc', b: 'xyz' }))
       .to.eventually.equal('block b( h(abc) ) 45\ninverse bi( h(cba) ) 456')
       .notify(done)
   })
 
   it('should handle {{expr}} and {{{expr}}} like Handlebars does', function (done) {
     var template = this.Handlebars.compile(fixture('escaping.hbs'))
-    return expect(template({a: '<a>', b: '<b>'}))
+    return expect(template({ a: '<a>', b: '<b>' }))
       .to.eventually.equal('raw: <a> h(<a>)\nesc: &lt;a&gt; h(&lt;a&gt;)')
       .notify(done)
   })
 
   it('should work correctly when partials are called', function (done) {
     var template = this.Handlebars.compile(fixture('partials.hbs'))
-    return expect(template({a: 'aa', b: 'bb'}))
+    return expect(template({ a: 'aa', b: 'bb' }))
       .to.eventually.equal('h(partialA) 123 h(aa) h(partialB) 456 h(bb)')
       .notify(done)
   })
@@ -97,27 +97,34 @@ function runDefaultSuite () {
   })
   it('async helpers nested in synchronous block-helpers should work', function (done) {
     var template = this.Handlebars.compile(fixture('synchronous-block-helper-nests-async.hbs'))
-    return expect(template({a: 'aa'}))
+    return expect(template({ a: 'aa' }))
       .to.eventually.equal('h(aa),h(aa)')
       .notify(done)
   })
   it('async helpers nested in synchronous builtin block-helpers should work', function (done) {
     var template = this.Handlebars.compile(fixture('builtin-block-helper-nests-async.hbs'))
-    return expect(template({arr: [{a: 'aa'}, {a: 'bb'}]}))
+    return expect(template({ arr: [{ a: 'aa' }, { a: 'bb' }] }))
       .to.eventually.equal('h(aa)-h(bb)-')
       .notify(done)
   })
 
   it('a completely synchronous block helper (with synchronous resolvable content) not have to deal with placeholders', function (done) {
     var template = this.Handlebars.compile(fixture('block-helper-manipulate.hbs'))
-    return expect(template({arr: [{a: 'aa'}, {a: 'bb'}]}))
+    return expect(template({ arr: [{ a: 'aa' }, { a: 'bb' }] }))
       .to.eventually.equal('abc')
       .notify(done)
   })
+
+  it('error helper', function (done) {
+    var template = this.Handlebars.compile('{{#test}}{{/test}}');
+    return expect(template({}))
+      .to.eventually.equal('30')
+      .notify(done)
+  });
 }
 
 // Setup Handlebars helpers and partials
-function setupHandlebars (Handlebars) {
+function setupHandlebars(Handlebars) {
   Handlebars.registerHelper({
     'helper': function (delay, value) {
       return promisedDelay(delay).then(function () {
@@ -177,11 +184,17 @@ function setupHandlebars (Handlebars) {
     return String(options.fn(this)).trim()
   })
 
+  Handlebars.registerHelper('test', function (options) {
+    return promisedDelay(100).then(function () {
+      return new Handlebars.SafeString("30");
+    });
+  });
+
   Handlebars.registerPartial('a', "{{helper '10' 'partialA'}}")
   Handlebars.registerPartial('b', "{{helper '10' 'partialB'}}")
   Handlebars.registerPartial('identity', 'id({{.}})')
 
-  function promisedExists (file) {
+  function promisedExists(file) {
     return new Handlebars.Promise(function (resolve, reject) {
       require('fs').stat(file, function (err, result) {
         if (err) {
@@ -192,7 +205,7 @@ function setupHandlebars (Handlebars) {
     })
   }
 
-  function promisedDelay (delay) {
+  function promisedDelay(delay) {
     return new Handlebars.Promise(function (resolve, reject) {
       setTimeout(function () {
         resolve(true)
@@ -201,7 +214,7 @@ function setupHandlebars (Handlebars) {
   }
 }
 
-function fixture (file) {
+function fixture(file) {
   var fs = require('fs')
-  return fs.readFileSync(require.resolve('./fixtures/' + file), {encoding: 'utf-8'}).trim()
+  return fs.readFileSync(require.resolve('./fixtures/' + file), { encoding: 'utf-8' }).trim()
 }
