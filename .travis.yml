@@ -5,6 +5,7 @@ node_js:
 - '0.12'
 - '4'
 - '5'
+- '6'
 - iojs
 before_script:
 - npm install standard
@@ -15,11 +16,3 @@ script:
 after_script:
 - npm install coveralls
 - cat ./coverage/lcov.info | coveralls
-deploy:
-  provider: npm
-  email: npm@knappi.org
-  api_key:
-    secure: IBYU6r1fpm2mxQ0BB9xf12NCtUPA70kypfR6zawlhEPUsNWLkb+FDujWAkl2zwsim+aDzgfXf81K79+lW++PRW5cuC0UmfytYN7RVe0+h7MI7YTg5mHvp6nGdpXwkpHv/DqrhkILoh74HFVwxV/gEHogZQtdck0D7bB04rvTkw4i95oovxYO5LhhE65TiwrTFYlvK8VQNIV/0oUR+A1lFh0EQaLwOB3EHIZjAgi8TSTMHRtqC1wcLc2m2glx2nRr2/E8DTK8gxDzWM1+6zcRy9Ynkbuo5WRAh26FtzBxpVWywxMDIsnhpX4U/acwh/N2vLbuqEJ8kIIX7ufEIQso3HxI+BE28eH2DJenLdDpSz2JTQByMlQ8kJ69njivcXTzgos3q9nZzTBfp7UWdwhSRWg0NOlxRKGw0eS/wAnlRZaFiJ6DoYdpAdDjwfDvZM+/2KW7wGRys/8bp4HuQmQBPCS+pl0O3IoyIdr4F3qd3YTiGUn+06NYo9RVPL8hsgvQl9aX0DQpuyPH+TpzA1R4+O7RULp66KcTl2GBEIYdqW6ejSDLxAdppXuswgOlZZS0y3U0GJ7k5ior/3sJK6Kl6iRYmzEE+etiJBtIqb333WVcB2kLz6AbWzCz+m6E3bjJNTDjO+HZZDVV5ExYm/6J2NknjrLupUe/svZHuKIIu3I=
-  on:
-    tags: true
-    repo: nknapp/promised-handlebars
