@@ -63,7 +63,7 @@ function promisedHandlebars (Handlebars, options) {
   engine.compile = wrap(engine.compile, function compileWrapper (oldCompile, args) {
     var fn = oldCompile.apply(engine, args)
     return wrap(fn, prepareAndResolveMarkers)
-  // Wrap the compiled function
+    // Wrap the compiled function
   })
 
   /**
@@ -218,6 +218,9 @@ Markers.prototype.resolve = function resolve (input) {
          * @returns {string}
          */
         function replacePlaceholdersRecursivelyIn (string) {
+          if (typeof string !== 'string') {
+            return string
+          }
           return string.replace(self.regex, function (match, index, gt) {
             // Check whether promise result must be escaped
             var resolvedValue = promiseResults[index]
@@ -286,6 +289,8 @@ function toArray (arrayLike) {
  * @returns {Boolean}     Whether it's a PromiseA like object
  */
 function isPromiseAlike (obj) {
-  if (obj == null) return false
+  if (obj == null) {
+    return false
+  }
   return (typeof obj === 'object') && (typeof obj.then === 'function')
 }

@@ -114,6 +114,13 @@ function runDefaultSuite () {
       .to.eventually.equal('abc')
       .notify(done)
   })
+
+  it('should handle promises with Handlebars.SafeString correctly', function (done) {
+    var template = this.Handlebars.compile('{{#safeString}}abc{{/safeString}}')
+    return expect(template({}))
+      .to.eventually.equal('30')
+      .notify(done)
+  })
 }
 
 // Setup Handlebars helpers and partials
@@ -168,6 +175,11 @@ function setupHandlebars (Handlebars) {
     },
     'spaces': function (count) {
       return '                                              '.substr(0, count)
+    },
+    'safeString': function (options) {
+      return promisedDelay(100).then(function () {
+        return new Handlebars.SafeString(options.fn(this))
+      })
     }
   })
 
