@@ -116,9 +116,9 @@ function runDefaultSuite () {
   })
 
   it('should handle promises with Handlebars.SafeString correctly', function (done) {
-    var template = this.Handlebars.compile('{{#safeString}}abc{{/safeString}}')
+    var template = this.Handlebars.compile('abc{{#safeString}}abc{{/safeString}}')
     return expect(template({}))
-      .to.eventually.equal('30')
+      .to.eventually.equal('abcabc')
       .notify(done)
   })
 }
