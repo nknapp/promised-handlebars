@@ -8,6 +8,7 @@
 'use strict'
 
 var deepAplus = require('deep-aplus')
+var replaceP = require('./lib/replaceP')
 
 module.exports = promisedHandlebars
 
@@ -38,6 +39,7 @@ function promisedHandlebars (Handlebars, options) {
   }
 
   var deep = deepAplus(Promise)
+
   var engine = Handlebars.create()
   var markers = null
 
@@ -167,6 +169,7 @@ function Markers (engine, prefix) {
   // one line from substack's quotemeta-package
   var placeHolderRegexEscaped = String(this.prefix).replace(/(\W)/g, '\\$1')
   this.regex = new RegExp(placeHolderRegexEscaped + '(\\d+)(>|&gt;)', 'g')
+  this.replaceP = replaceP(engine.Promise)
 }
 
 /**
@@ -214,14 +217,22 @@ Markers.prototype.resolve = function resolve (input) {
         /**
          * Replace placeholders in a string. Looks for placeholders
          * in the replacement string recursively.
-         * @param {string} string
-         * @returns {string}
+         * @param {string|Promise|Handlebars.SafeString} string
+         * @returns {Promise<string>}
          */
         function replacePlaceholdersRecursivelyIn (string) {
-          if (typeof string !== 'string') {
-            return string
+          if (isPromiseAlike(string)) {
+            return string.then(function (string) {
+              return replacePlaceholdersRecursivelyIn(string)
+            })
           }
-          return string.replace(self.regex, function (match, index, gt) {
+          if (typeof string.toHTML === 'function' && string.string) {
+            // This is a Handlebars.SafeString or something like it
+            return replacePlaceholdersRecursivelyIn(string.string)
+          }
+
+          // Must be a string, or something that can be converted to a string
+          return self.replaceP(String(string), self.regex, function (match, index, gt) {
             // Check whether promise result must be escaped
             var resolvedValue = promiseResults[index]
             var result = gt === '>' ? resolvedValue : self.engine.escapeExpression(resolvedValue)
@@ -230,7 +241,7 @@ Markers.prototype.resolve = function resolve (input) {
         }
 
         // Promises are fulfilled. Insert real values into the result.
-        return replacePlaceholdersRecursivelyIn(String(output))
+        return replacePlaceholdersRecursivelyIn(output)
       })
   })
 }

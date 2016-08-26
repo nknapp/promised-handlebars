@@ -115,10 +115,17 @@ function runDefaultSuite () {
       .notify(done)
   })
 
-  it('should handle promises with Handlebars.SafeString correctly', function (done) {
-    var template = this.Handlebars.compile('abc{{#safeString}}abc{{/safeString}}')
+  it('should handle block helpers returning promises with Handlebars.SafeString correctly', function (done) {
+    var template = this.Handlebars.compile('abc{{#safeStringBlock}}<abc>{{/safeStringBlock}}')
     return expect(template({}))
-      .to.eventually.equal('abcabc')
+      .to.eventually.equal('abc<abc>')
+      .notify(done)
+  })
+
+  it('should handle helpers returning promises with Handlebars.SafeString correctly', function (done) {
+    var template = this.Handlebars.compile('abc{{safeString}}')
+    return expect(template({}))
+      .to.eventually.equal('abc<abc>')
       .notify(done)
   })
 }
@@ -176,9 +183,14 @@ function setupHandlebars (Handlebars) {
     'spaces': function (count) {
       return '                                              '.substr(0, count)
     },
-    'safeString': function (options) {
+    'safeStringBlock': function (options) {
       return promisedDelay(100).then(function () {
         return new Handlebars.SafeString(options.fn(this))
+      })
+    },
+    'safeString': function () {
+      return promisedDelay(100).then(function () {
+        return new Handlebars.SafeString('<abc>')
       })
     }
   })
