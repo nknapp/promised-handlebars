@@ -16,6 +16,7 @@
 var replaceP = require('../lib/replaceP')(require('bluebird'))
 var chai = require('chai')
 var chaiAsPromised = require('chai-as-promised')
+var Q = require('q')
 chai.use(chaiAsPromised)
 var expect = chai.expect
 
@@ -39,13 +40,11 @@ describe('replaceP: ', function () {
   it('should be able to handle promises returned by the replacer', function () {
     function replacer (match, p1, offset, string) {
       expect(string).to.equal('abcdef')
-      return new Promise(function (resolve, reject) {
-        setTimeout(function () {
-          resolve(match + '(' + p1 + ',' + offset + ')')
-        }, 10)
-      })
+      return Q.delay(10)
+        .then(function () {
+          return match + '(' + p1 + ',' + offset + ')'
+        })
     }
-
     return expect(replaceP('abcdef', /([bd])./g, replacer)).to.eventually.equal('abc(b,1)de(d,3)f')
   })
 })
