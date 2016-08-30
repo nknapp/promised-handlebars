@@ -33,6 +33,13 @@ function runDefaultSuite () {
       .notify(done)
   })
 
+  it('should handle null and undefined arguments of helpers', function (done) {
+    var template = this.Handlebars.compile(fixture('simple-helper.hbs'))
+    return expect(template({a: null, b: undefined}))
+      .to.eventually.equal('123 h(null) 456 h(undefined)')
+      .notify(done)
+  })
+
   it('should work with block helpers that call `fn` while resolving a promise', function (done) {
     var template = this.Handlebars.compile(fixture('block-helper.hbs'))
     return expect(template({a: 'abc', b: 'xyz'}))
@@ -114,6 +121,20 @@ function runDefaultSuite () {
       .to.eventually.equal('abc')
       .notify(done)
   })
+
+  it('should handle block helpers returning promises with Handlebars.SafeString correctly', function (done) {
+    var template = this.Handlebars.compile('abc{{#safeStringBlock}}<abc>{{/safeStringBlock}}')
+    return expect(template({}))
+      .to.eventually.equal('abc<abc>')
+      .notify(done)
+  })
+
+  it('should handle helpers returning promises with Handlebars.SafeString correctly', function (done) {
+    var template = this.Handlebars.compile('abc{{safeString}}')
+    return expect(template({}))
+      .to.eventually.equal('abc<abc>')
+      .notify(done)
+  })
 }
 
 // Setup Handlebars helpers and partials
@@ -168,6 +189,16 @@ function setupHandlebars (Handlebars) {
     },
     'spaces': function (count) {
       return '                                              '.substr(0, count)
+    },
+    'safeStringBlock': function (options) {
+      return promisedDelay(100).then(function () {
+        return new Handlebars.SafeString(options.fn(this))
+      })
+    },
+    'safeString': function () {
+      return promisedDelay(100).then(function () {
+        return new Handlebars.SafeString('<abc>')
+      })
     }
   })
 
