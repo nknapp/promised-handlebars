@@ -43,7 +43,8 @@
     "q"
   ],
   "files": [
-    "index.js"
+    "index.js",
+    "lib"
   ],
   "devDependencies": {
     "q": "^1.4.1",
