@@ -1,6 +1,11 @@
 # Change Log
 
 <a name="current-release"></a>
+# Version 2.0.1 (Tue, 30 Aug 2016 21:10:12 GMT)
+
+* [b9eaaa0](https://github.com/nknapp/promised-handlebars/commit/b9eaaa0) Support for Handlebars.SafeString (#27) - Nils Knappmeier
+* [e805c22](https://github.com/nknapp/promised-handlebars/commit/e805c22) TravisCI: Add node 6, remove auto-deploy (#28) - Nils Knappmeier
+
 # Version 2.0.0 (Thu, 28 Jul 2016 23:39:58 GMT)
 
 Version 2.0.0 allows to configure the used Promise-library. The default is to the `global.Promise` this is considered a breaking change,
