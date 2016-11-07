@@ -41,7 +41,6 @@ module.exports = promisedHandlebars
 function promisedHandlebars (Handlebars, options) {
   options = options || {}
   options.placeholder = options.placeholder || '\u0001'
-  
   options.handlebars = options.handlebars || {}
 
   var Promise = options.Promise || global.Promise
