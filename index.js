@@ -35,11 +35,14 @@ module.exports = promisedHandlebars
  *   my any helper generate the placeholder in to the result. Errors or wrong replacement will
  *   happen otherwise.
  * @param {Promise=} options.Promise the promise implementation to use. Defaults to global.Promise
+ * @param {object=} options.handlebars Optional parameters passed on to Handlebars.create()
  * @returns {Handlebars} a modified Handlebars object
  */
 function promisedHandlebars (Handlebars, options) {
   options = options || {}
   options.placeholder = options.placeholder || '\u0001'
+  
+  options.handlebars = options.handlebars || {}
 
   var Promise = options.Promise || global.Promise
   if (!Promise) {
@@ -49,7 +52,7 @@ function promisedHandlebars (Handlebars, options) {
   var deep = deepAplus(Promise)
   var Markers = createMarkers(Promise)
 
-  var engine = Handlebars.create()
+  var engine = Handlebars.create(options.handlebars)
   var markers = null
 
   // Wrap `registerHelper` with a custom function
