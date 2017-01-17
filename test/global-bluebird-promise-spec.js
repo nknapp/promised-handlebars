@@ -8,9 +8,9 @@
 /* global after */
 /* global before */
 /* global describe */
-// /* global it */
+// /* global xit */
 // /* global xdescribe */
-/* global xit */
+/* global it */
 
 'use strict'
 
