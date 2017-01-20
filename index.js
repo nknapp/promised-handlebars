@@ -69,6 +69,9 @@ function promisedHandlebars (Handlebars, options) {
   // Re-register all built-in-helpers to ensure that their methods are wrapped
   engine.registerHelper(engine.helpers)
 
+  // Preserve synchronous 'compile' function
+  engine.compileSync = engine.compile.bind({})
+
   // Wrap the `compile` function, so that it wraps the compiled-template
   // with `prepareAndResolveMarkers`
   engine.compile = wrap(engine.compile, function compileWrapper (oldCompile, args) {
