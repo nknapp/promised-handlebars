@@ -68,11 +68,10 @@ function runDefaultSuite () {
       .to.eventually.equal('abc,abc')
   })
 
-  it('simple helpers should also be able to return real values', function (done) {
+  it('simple helpers should also be able to return real values', function () {
     var template = this.Handlebars.compile(fixture('synchronous-simple-helper.hbs'))
     return expect(template({}))
       .to.eventually.equal('27')
-      .notify(done)
   })
 
   it('helpers passed in as parameters like {{#helper (otherhelper 123)}} should be resolved within the helper call', function () {
