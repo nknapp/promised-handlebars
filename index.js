@@ -73,7 +73,15 @@ function promisedHandlebars (Handlebars, options) {
   // with `prepareAndResolveMarkers`
   engine.compile = wrap(engine.compile, function compileWrapper (oldCompile, args) {
     var fn = oldCompile.apply(engine, args)
+    return wrap(fn, prepareAndResolveMarkers)
     // Wrap the compiled function
+  })
+
+  // Wrap the `template` function, so that it wraps the precompiled template
+  // with `prepareAndResolveMarkers`
+  engine.template = wrap(engine.template, function compileWrapper (oldTemplate, args) {
+    var fn = oldTemplate.apply(engine, args);
+
     return wrap(fn, prepareAndResolveMarkers)
   })
 
@@ -144,3 +152,4 @@ function promisedHandlebars (Handlebars, options) {
 
   return engine
 }
+
