@@ -98,6 +98,9 @@ function promisedHandlebars (Handlebars, options) {
       markers = new Markers(engine, options.placeholder)
       var resultWithPlaceholders = fn.apply(this, args)
       return markers.resolve(resultWithPlaceholders)
+    } catch(e) {
+      // log error
+      console.error('promised-handlebars: ', e);
     } finally {
       // Reset promises for the next execution run
       markers = null
